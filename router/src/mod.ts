@@ -13,3 +13,4 @@ export {
   type MetaRouteMiddleware,
   type RouteData,
 } from "./client";
+export type { RoutesWithHandlerType } from "./types";

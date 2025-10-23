@@ -4,14 +4,8 @@ import generate from "@babel/generator";
 import * as t from "@babel/types";
 import * as p from "node:path";
 import process from "node:process";
-import {
-  existsSync,
-  readFileSync,
-  writeFileSync,
-  rmSync,
-  mkdirSync,
-} from "node:fs";
-import type { VonoPlugin } from "@100x/application";
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import type { ApplicationPlugin } from "@100x/application";
 
 export function resolveUnknownExtension(
   path: string | undefined | null,
@@ -25,7 +19,7 @@ export function resolveUnknownExtension(
   return null;
 }
 
-const lazyRoutes: VonoPlugin = ({ vitePlugins, virtualFile }) => {
+const lazyRoutes: ApplicationPlugin = ({ vitePlugins, virtualFile }) => {
   const routesToImports: Record<string, Set<string>> = {};
 
   let lazyRoutes = `export default {}`;

@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { createRoot } from "react-dom/client";
 import "~/clientMain/assets/styles.css";
 
-export default function App() {
+function Main() {
   const [count, setCount] = useState(0);
   return (
     <div>
@@ -12,3 +13,5 @@ export default function App() {
     </div>
   );
 }
+
+createRoot(document.body).render(<Main />);
