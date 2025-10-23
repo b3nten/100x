@@ -37,3 +37,5 @@ export const reactPlugin: ApplicationPlugin = (app) => {
 
   app.plugin(lazyRoutes);
 };
+
+export default reactPlugin;

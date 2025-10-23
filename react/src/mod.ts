@@ -16,4 +16,3 @@ export {
   useComponentQuery,
   useComponentResolver,
 } from "./ecs";
-export { reactPlugin as react } from "./plugin";

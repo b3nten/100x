@@ -117,7 +117,6 @@ ${lazyComponents.map((c) => `if(!__lazyComponentImports.has("${c}")) __lazyCompo
           map: null,
         };
       } catch (e) {
-        console.error("Error parsing lazy component usage:", id);
         return null;
       }
     },
