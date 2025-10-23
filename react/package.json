@@ -1,7 +1,7 @@
 {
   "name": "@100x/react",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publishConfig": {
     "access": "public"
   },
@@ -40,7 +40,7 @@
       "import": "./.build/mod.js",
       "types": "./.build/mod.d.ts"
     },
-    "plugin": {
+    "./plugin": {
       "import": "./.build/plugin.js",
       "types": "./.build/plugin.d.ts"
     },
