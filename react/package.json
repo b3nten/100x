@@ -1,7 +1,7 @@
 {
   "name": "@100x/react",
   "type": "module",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publishConfig": {
     "access": "public"
   },
@@ -14,7 +14,6 @@
     "@babel/traverse": "^7.28.4",
     "@babel/generator": "^7.28.3",
     "@babel/types": "^7.28.4",
-    "unhead": "^2.0.19",
     "react-refresh": "^0.18.0",
     "@vitejs/plugin-react": "^5.0.4",
     "@babel/plugin-proposal-decorators": "^7.28.0"
@@ -44,10 +43,6 @@
     "./plugin": {
       "import": "./.build/plugin.js",
       "types": "./.build/plugin.d.ts"
-    },
-    "./server": {
-      "import": "./.build/server.js",
-      "types": "./.build/server.d.ts"
     }
   },
   "packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321"

@@ -135,9 +135,6 @@ importers:
       react-refresh:
         specifier: ^0.18.0
         version: 0.18.0
-      unhead:
-        specifier: ^2.0.19
-        version: 2.0.19
     devDependencies:
       '@types/react':
         specifier: ^19.0.0

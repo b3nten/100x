@@ -60,7 +60,7 @@ const lazyRoutes: ApplicationPlugin = ({ vitePlugins, virtualFile }) => {
 
         const lazyComponents: string[] = [];
 
-        traverse(ast, {
+        traverse.default(ast, {
           CallExpression(path) {
             if (
               t.isIdentifier(path.node.arguments[0]) &&
@@ -106,7 +106,7 @@ const lazyRoutes: ApplicationPlugin = ({ vitePlugins, virtualFile }) => {
         if (lazyComponents.length === 0) return null;
 
         const transformed =
-          generate(ast).code +
+          generate.default(ast).code +
           `
 globalThis.__lazyComponentImports ??= new Map;
 globalThis.__lazyComponentPromises ??= new Map;

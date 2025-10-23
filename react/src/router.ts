@@ -8,7 +8,7 @@ import {
 import { ClientRouter } from "@100x/router";
 import { nonNullOrThrow } from "@100x/engine/asserts";
 
-export const routerContext = createContext<ClientRouter | null>(null);
+export const routerContext = createContext<ClientRouter<any, any> | null>(null);
 
 export const useRouter = () =>
   nonNullOrThrow(
@@ -17,7 +17,7 @@ export const useRouter = () =>
   );
 
 export const RouterProvider = (
-  props: PropsWithChildren<{ router: ClientRouter }>,
+  props: PropsWithChildren<{ router: ClientRouter<any, any> }>,
 ) =>
   createElement(
     routerContext.Provider,
