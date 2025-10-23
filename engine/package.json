@@ -1,7 +1,7 @@
 {
   "name": "@100x/engine",
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publishConfig": {
     "access": "public"
   },
@@ -11,6 +11,9 @@
     "build:types": "tsc --declaration --emitDeclarationOnly --project tsconfig.json --outDir .build/types",
     "lint": "biome format --fix && biome lint --fix --unsafe",
     "publish-npm": "npm publish . --tag beta"
+  },
+  "dependencies": {
+    "supports-color": "^5.4.0"
   },
   "devDependencies": {
     "@types/three": "^0.171.0",

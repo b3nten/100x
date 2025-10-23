@@ -102,7 +102,7 @@ export async function configure(app: Application, mode: "dev" | "prod") {
     renderer: {
       entry: runtimePaths.renderer,
     },
-    routesDir: app.config.apiRouteDirectory ?? "src/serverMain/routes",
+    srcDir: app.config.serverDirectory ?? "src/serverMain",
   });
 
   // @ts-ignore

@@ -23,7 +23,8 @@ interface ApplicationSpecification {
   vite: ViteConfig;
   nitro: NonNullable<NitroPluginConfig["config"]>;
   plugins: Array<ApplicationPlugin>;
-  apiRouteDirectory?: string;
+  serverDirectory?: string;
+  clientDirectory?: string;
   port?: number;
   files: {
     client: {
@@ -229,11 +230,19 @@ export class Application {
   };
 
   /**
-   * Set the directory for file-based API routes.
+   * Set the root directory for file-based API routes.
    * @param path
    */
-  readonly apiRouteDirectory = (path: string) => {
-    this.config.apiRouteDirectory = path;
+  readonly serverDirectory = (path: string) => {
+    this.config.serverDirectory = path;
+  };
+
+  /**
+   * Set the root directory for client-side files.
+   * @param path
+   */
+  readonly clientDirectory = (path: string) => {
+    this.config.clientDirectory = path;
   };
 
   /**

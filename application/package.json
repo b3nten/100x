@@ -1,7 +1,7 @@
 {
   "name": "@100x/application",
   "type": "module",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "publishConfig": {
     "access": "public"
   },
@@ -33,7 +33,6 @@
       "types": "./.build/mod.d.ts"
     },
     "./server": {
-      "import": "./.build/serverStub.js",
       "types": "./.build/server.d.ts"
     },
     "./client": "./.build/client.d.ts",
