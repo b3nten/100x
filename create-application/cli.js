@@ -31,10 +31,11 @@ async function main() {
     process.exit(1);
   }
 
-  const usingReact = await consola.prompt("Use React plugin?", {
-    type: "confirm",
-    initial: false,
-  });
+  // const usingReact = await consola.prompt("Use React plugin?", {
+  //   type: "confirm",
+  //   initial: false,
+  // });
+  const usingReact = false;
 
   const target = await consola.prompt(
     "Choose a built target (this can be changed later):",
@@ -157,8 +158,6 @@ const packageJson = (name, usingReact) => `{
   "dependencies": {
     "@100x/application": "^0.0.1",
     "@100x/engine": "^0.0.1",
-    ${usingReact ? '"@100x/router": "^0.0.1",' : ""}
-    ${usingReact ? '"@100x/react": "^0.0.1",' : ""}
     "typescript": "^5.9.3"
   }
 }
@@ -168,11 +167,9 @@ const config = (
   target,
   usingReact,
 ) => `import { Application } from "@100x/application";
-${usingReact ? `import { react } from "@100x/react";` : ""}
 
 export default new Application(({ buildFor, BuildTarget, plugin }) => {
-	${target === "Node" ? "" : `buildFor(BuildTarget.${targets[target]})`}
-	${usingReact ? `plugin(react)` : ""}
+	${`buildFor(BuildTarget.${targets[target]})`}
 })`;
 
 const tsconfig = `{
