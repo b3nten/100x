@@ -1,0 +1,16 @@
+{
+  "name": "@100x/create-application",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "0.0.1",
+  "type": "module",
+  "bin": "./cli.js",
+  "files": [
+    "cli.js"
+  ],
+  "dependencies": {
+    "consola": "^3.4.2",
+    "@100x/engine": "^0.0.1"
+  }
+}

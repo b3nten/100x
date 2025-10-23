@@ -3,12 +3,12 @@ export default (
   absoluteClientEntry: string,
   mode: string,
 ) => `
-import m from 'virtual:vono/vite-manifest';
+import m from 'virtual:100x/vite-manifest';
 ${
   mode === "dev"
     ? `export * from 'nitro/runtime';
 export * from 'nitro/h3';`
-    : `export * from "@vonojs/framework/lib/nitro";`
+    : `export * from "@100x/application/lib/nitro";`
 }
 
 export const manifest = m;

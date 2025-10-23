@@ -1,2 +1,2 @@
-import serverMain from "@vonojs/framework/serverEntry";
+import serverMain from "@100x/application/serverEntry";
 export default serverMain;

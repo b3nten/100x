@@ -1,5 +1,5 @@
-import { type Vono, vonoInternal } from "./mod.ts";
-import { VonoEntryPoints } from "./entryPoints.ts";
+import { type Application, appInternal } from "./mod.ts";
+import { ApplicationEntries } from "./entryPoints.ts";
 import tsconfigPaths from "vite-tsconfig-paths";
 import virtualServerFile from "./virtual/server.ts";
 import { defaultRuntimes } from "./runtimes/index.ts";
@@ -10,19 +10,19 @@ import { absolutePathToRelative, resolveUnknownExtension } from "./utils.ts";
 import { defaultEntries } from "./defaultEntries/index.ts";
 import fs from "fs/promises";
 
-export async function configure(vono: Vono, mode: "dev" | "prod") {
-  vono.vitePlugins(vono.vfs.vitePlugin(), tsconfigPaths());
+export async function configure(app: Application, mode: "dev" | "prod") {
+  app.vitePlugins(app.vfs.vitePlugin(), tsconfigPaths());
 
   try {
-    await vono[vonoInternal].userConfigFunction?.(vono);
+    await app[appInternal].userConfigFunction?.(app);
   } catch (e) {
-    consola.error("Error in vono config function:", e);
+    consola.error("Error in user's application config function:", e);
     process.exit(1);
   }
 
-  for (const plugin of vono.config.plugins) {
+  for (const plugin of app.config.plugins) {
     try {
-      await plugin(vono);
+      await plugin(app);
     } catch (e) {
       consola.error(`Error in plugin ${plugin.name}:`, e);
       process.exit(1);
@@ -31,16 +31,16 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
 
   const runtimePaths = {
     server: resolveUnknownExtension(
-      vono.config.runtimes.server[mode] ?? defaultRuntimes.server[mode],
+      app.config.runtimes.server[mode] ?? defaultRuntimes.server[mode],
     ),
     client: resolveUnknownExtension(
-      vono.config.runtimes.client[mode] ?? defaultRuntimes.client[mode],
+      app.config.runtimes.client[mode] ?? defaultRuntimes.client[mode],
     ),
     renderer: resolveUnknownExtension(
       mode === "dev"
-        ? (vono.config.runtimes.server.rendererDev ??
+        ? (app.config.runtimes.server.rendererDev ??
             defaultRuntimes.server.rendererDev)
-        : (vono.config.runtimes.server.rendererProd ??
+        : (app.config.runtimes.server.rendererProd ??
             defaultRuntimes.server.rendererProd),
     ),
   };
@@ -54,20 +54,20 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
     }
   }
 
-  const entries = new VonoEntryPoints(vono.config.files);
+  const entries = new ApplicationEntries(app.config.files);
 
-  vono.viteConfig({
+  app.viteConfig({
     build: {
       manifest: true,
     },
     resolve: {
       alias: {
-        "@vonojs/framework/server": "virtual:vono/server",
-        "@vonojs/framework/serverEntry":
+        "@100x/application/server": "virtual:100x/server",
+        "@100x/application/serverEntry":
           entries.getServerEntry(mode)?.path ?? defaultEntries.server,
-        "@vonojs/framework/rendererEntry":
+        "@100x/application/rendererEntry":
           entries.getRendererEntry(mode)?.path ?? defaultEntries.renderer,
-        "@vonojs/framework/clientEntry":
+        "@100x/application/clientEntry":
           entries.getClientEntry(mode)?.path ?? defaultEntries.client,
       },
     },
@@ -81,12 +81,12 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
     process.exit(1);
   }
 
-  vono.virtualFile(
+  app.virtualFile(
     "server",
     virtualServerFile(relativeClientRuntime, runtimePaths.client!, mode),
   );
 
-  vono.virtualFile("vite-manifest", async () => {
+  app.virtualFile("vite-manifest", async () => {
     try {
       return `export default ${await fs.readFile("./.output/public/.vite/manifest.json", "utf-8")}`;
     } catch {
@@ -94,21 +94,21 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
     }
   });
 
-  const nitroConfig = defu(vono.config.nitro, {
+  const nitroConfig = defu(app.config.nitro, {
     devServer: {
-      port: vono.config.port ?? 8000,
+      port: app.config.port ?? 8000,
     },
     serverEntry: runtimePaths.server,
     renderer: {
       entry: runtimePaths.renderer,
     },
-    routesDir: vono.config.apiRouteDirectory ?? "src/serverMain/routes",
+    routesDir: app.config.apiRouteDirectory ?? "src/serverMain/routes",
   });
 
   // @ts-ignore
-  vono.vitePlugins(nitro({ config: nitroConfig }));
+  app.vitePlugins(nitro({ config: nitroConfig }));
 
-  vono.viteConfig({
+  app.viteConfig({
     environments: {
       client: {
         build: {
@@ -121,9 +121,9 @@ export async function configure(vono: Vono, mode: "dev" | "prod") {
     },
   });
 
-  for (const afterConfigCallback of vono[vonoInternal].afterConfigCallbacks) {
+  for (const afterConfigCallback of app[appInternal].afterConfigCallbacks) {
     try {
-      await afterConfigCallback(vono);
+      await afterConfigCallback(app);
     } catch (error) {
       consola.error(
         `Error in afterConfig callback ${afterConfigCallback.name}:`,

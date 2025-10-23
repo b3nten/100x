@@ -19,10 +19,10 @@ export const BuildTarget = {
 
 type BuildTarget = (typeof BuildTarget)[keyof typeof BuildTarget];
 
-interface VonoConfig {
+interface ApplicationSpecification {
   vite: ViteConfig;
   nitro: NonNullable<NitroPluginConfig["config"]>;
-  plugins: Array<VonoPlugin>;
+  plugins: Array<ApplicationPlugin>;
   apiRouteDirectory?: string;
   port?: number;
   files: {
@@ -59,20 +59,22 @@ interface VonoConfig {
  * They can be used to add functionality to the build process.
  * @param vono - The Vono object.
  */
-export type VonoPlugin = (vono: Vono) => void | Promise<void>;
+export type ApplicationPlugin = (app: Application) => void | Promise<void>;
 
 /**
  * Key for internal properties of the Vono object.
  * @internal
  */
-export const vonoInternal = Symbol.for("vonoInternal");
+export const appInternal = Symbol.for("appInternal");
 
-export class Vono {
-  constructor(userConfigFunction?: (vono: Vono) => Promise<void> | void) {
-    this[vonoInternal].userConfigFunction = userConfigFunction;
+export class Application {
+  constructor(
+    userConfigFunction?: (vono: Application) => Promise<void> | void,
+  ) {
+    this[appInternal].userConfigFunction = userConfigFunction;
   }
 
-  readonly config: VonoConfig = {
+  readonly config: ApplicationSpecification = {
     plugins: [],
     nitro: {},
     vite: {
@@ -94,7 +96,7 @@ export class Vono {
    * Add a vono plugin to the config.
    * @param plugin
    */
-  plugin = (plugin: (vono: Vono) => void) => {
+  plugin = (plugin: (app: Application) => void) => {
     this.config.plugins?.push(plugin);
   };
 
@@ -220,7 +222,9 @@ export class Vono {
    * Update the runtimes config.
    * @param fn
    */
-  readonly runtimes = (fn: (runtimes: VonoConfig["runtimes"]) => void) => {
+  readonly runtimes = (
+    fn: (runtimes: ApplicationSpecification["runtimes"]) => void,
+  ) => {
     fn(this.config.runtimes);
   };
 
@@ -244,17 +248,17 @@ export class Vono {
    * Add a callback to be called after the configuration is done.
    * @param afterConfigCallback
    */
-  readonly afterConfiguration = (afterConfigCallback: VonoPlugin) => {
-    this[vonoInternal].afterConfigCallbacks.add(afterConfigCallback);
+  readonly afterConfiguration = (afterConfigCallback: ApplicationPlugin) => {
+    this[appInternal].afterConfigCallbacks.add(afterConfigCallback);
   };
 
   /**
    * Virtual file system.
    */
   readonly vfs = new VirtualFileSystem();
-  [vonoInternal]: {
-    userConfigFunction?: (vono: Vono) => Promise<void> | void;
-    afterConfigCallbacks: Set<VonoPlugin>;
+  [appInternal]: {
+    userConfigFunction?: (vono: Application) => Promise<void> | void;
+    afterConfigCallbacks: Set<ApplicationPlugin>;
   } = {
     userConfigFunction: undefined,
     afterConfigCallbacks: new Set(),

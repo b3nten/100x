@@ -1,5 +1,7 @@
 linkWorkspacePackages: deep
 packages:
-  - 'playground'
-  - '*'
-  - '!node_modules'
+  - "playground"
+  - "*"
+  - "application/playground"
+  - "react/playground"
+  - "!node_modules"

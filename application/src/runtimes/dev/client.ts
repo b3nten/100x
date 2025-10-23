@@ -1,2 +1,2 @@
 import "@vite/client";
-import "@vonojs/framework/clientEntry";
+import "@100x/application/clientEntry";

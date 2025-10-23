@@ -1,1 +1,1 @@
-import "@vonojs/framework/clientEntry";
+import "@100x/application/clientEntry";

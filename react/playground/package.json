@@ -1,0 +1,17 @@
+{
+  "name": "playground",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "application dev",
+    "build": "application build"
+  },
+  "dependencies": {
+    "@100x/application": "^0.0.1",
+    "@100x/engine": "^0.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-refresh": "latest",
+    "typescript": "^5.9.3"
+  }
+}

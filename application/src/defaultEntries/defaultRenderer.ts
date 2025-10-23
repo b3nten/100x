@@ -1,11 +1,11 @@
-import { defineRenderHandler } from "nitro/runtime"
+import { defineRenderHandler } from "nitro/runtime";
 
 export default defineRenderHandler(async () => ({
-	body: template,
-	headers: {
-		"content-type": "text/html",
-	}
-}))
+  body: template,
+  headers: {
+    "content-type": "text/html",
+  },
+}));
 
 const template = `
 <!DOCTYPE html>
@@ -168,4 +168,4 @@ const template = `
         </header>
     </div>
 </body>
-</html>`
+</html>`;

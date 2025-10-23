@@ -5,14 +5,19 @@
   "scripts": {
     "build": "tsx build.ts"
   },
-  "peerDependencies": {
-    "@100x/engine": "^0.0.1",
+  "bin": {
+    "application": "./.build/cli.js"
+  },
+  "dependencies": {
     "vite": "^7.1.12",
     "nitro": "3.0.1-alpha.0",
     "c12": "^3.3.0",
     "consola": "^3.4.2",
     "defu": "^6.1.4",
     "vite-tsconfig-paths": "^5.1.4"
+  },
+  "peerDependencies": {
+    "@100x/engine": "^0.0.1"
   },
   "files": [
     ".build",
