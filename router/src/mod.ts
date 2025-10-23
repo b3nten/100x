@@ -10,7 +10,7 @@ export {
 export {
   ClientRouter,
   type ClientRouterMiddleware,
-  type MetaRouteMiddleware,
+  MetaRouteMiddleware,
   type RouteData,
 } from "./client";
 export type { RoutesWithHandlerType } from "./types";
