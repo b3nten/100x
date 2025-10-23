@@ -41,6 +41,7 @@ export class VirtualFileSystem {
 
   vitePlugin = (): Plugin => ({
     name: "100x:vfs",
+    enforce: "pre",
     resolveId: this.resolve,
     load: this.load,
   });
