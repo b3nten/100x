@@ -89,10 +89,13 @@ const lazyRoutes: ApplicationPlugin = ({ vitePlugins, virtualFile }) => {
                 const matchPath = getPathOfMemberExpression(match.value);
                 let importPath = importProp.value.body.arguments[0].value;
                 if (importPath.startsWith(".")) {
-                  const resolvedImportPath = resolveUnknownExtension(
+                  let resolvedImportPath = resolveUnknownExtension(
                     p.join(p.dirname(relativeFilePath), importPath),
                   );
                   if (!resolvedImportPath) return null;
+                  if (!resolvedImportPath.startsWith("/")) {
+                    resolvedImportPath = "/" + resolvedImportPath;
+                  }
                   routesToImports[matchPath.join(".")] ??= new Set();
                   routesToImports[matchPath.join(".")]!.add(resolvedImportPath);
                 }

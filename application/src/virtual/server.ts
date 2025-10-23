@@ -16,6 +16,9 @@ export const manifest = m;
 for(const key in manifest) {
     if(manifest[key].file && !manifest[key].file.startsWith("/")) {
         manifest[key].file = "/" + manifest[key].file;
+        if(Array.isArray(manifest[key].css)) {
+            manifest[key].css = manifest[key].css.map((css) => css.startsWith("/") ? css : "/" + css);
+        }
     }
 }
 

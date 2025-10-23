@@ -16,3 +16,5 @@ await builder.build({
 });
 
 await builder.buildTypes();
+
+fs.copyFileSync("./src/types.d.ts", ".build/types.d.ts");
