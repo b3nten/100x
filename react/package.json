@@ -1,0 +1,36 @@
+{
+  "name": "@100x/react",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {},
+  "dependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/parser": "^7.28.4",
+    "@babel/traverse": "^7.28.4",
+    "@babel/generator": "^7.28.3",
+    "@babel/types": "^7.28.4",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0"
+  },
+  "peerDependencies": {
+    "@100x/engine": "^0.0.1",
+    "@100x/router": "^0.0.1",
+    "@100x/application": "^0.0.1",
+    "mobx": "^6.15.0",
+    "mobx-react-lite": "^4.1.1"
+  },
+  "files": [
+    ".build",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./.build/mod.js",
+      "types": "./.build/mod.d.ts"
+    }
+  },
+  "packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321"
+}

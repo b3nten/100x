@@ -1,0 +1,12 @@
+{
+  "name": "100x",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.18.0",
+    "esbuild": "^0.25.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

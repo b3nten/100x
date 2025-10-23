@@ -1,0 +1,36 @@
+{
+  "name": "@100x/application",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "tsx build.ts"
+  },
+  "peerDependencies": {
+    "@100x/engine": "^0.0.1",
+    "vite": "^7.1.12",
+    "nitro": "3.0.1-alpha.0",
+    "c12": "^3.3.0",
+    "consola": "^3.4.2",
+    "defu": "^6.1.4",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "files": [
+    ".build",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./.build/mod.js",
+      "types": "./.build/mod.d.ts"
+    },
+    "./server": "./.build/server.d.ts",
+    "./client": "./.build/client.d.ts",
+    "./entries": "./.build/entries.d.ts",
+    "./lib/nitro": {
+      "import": "./.build/lib/nitro.js",
+      "types": "./.build/lib/nitro.d.ts"
+    }
+  },
+  "packageManager": "pnpm@9.15.2+sha512.93e57b0126f0df74ce6bff29680394c0ba54ec47246b9cf321f0121d8d9bb03f750a705f24edc3c1180853afd7c2c3b94196d0a3d53d3e069d9e2793ef11f321"
+}

@@ -1,0 +1,23 @@
+{
+  "../../src/runtimes/prod/client.ts": {
+    "file": "assets/client-BuwQaUwx.js",
+    "name": "client",
+    "src": "../../src/runtimes/prod/client.ts",
+    "isEntry": true,
+    "dynamicImports": [
+      "src/clientMain/dynamic.ts"
+    ],
+    "css": [
+      "assets/client-5QYUduus.css"
+    ]
+  },
+  "src/clientMain/dynamic.ts": {
+    "file": "assets/dynamic-DvtG7N5B.js",
+    "name": "dynamic",
+    "src": "src/clientMain/dynamic.ts",
+    "isDynamicEntry": true,
+    "css": [
+      "assets/dynamic-g7pxOomj.css"
+    ]
+  }
+}

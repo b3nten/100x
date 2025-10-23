@@ -1,0 +1,20 @@
+{
+  "../../node_modules/.pnpm/nitro@3.0.1-alpha.0_chokidar@4.0.3_vite@7.1.11_@types+node@24.7.2_jiti@2.6.1_lightningcss@1.30.2_tsx@4.20.6_/node_modules/nitro/dist/presets/node/runtime/node-server.mjs": {
+    "file": "index.mjs",
+    "name": "node-server",
+    "src": "../../node_modules/.pnpm/nitro@3.0.1-alpha.0_chokidar@4.0.3_vite@7.1.11_@types+node@24.7.2_jiti@2.6.1_lightningcss@1.30.2_tsx@4.20.6_/node_modules/nitro/dist/presets/node/runtime/node-server.mjs",
+    "isEntry": true,
+    "dynamicImports": [
+      "../../src/runtimes/prod/renderer.ts"
+    ]
+  },
+  "../../src/runtimes/prod/renderer.ts": {
+    "file": "chunks/_/renderer.mjs",
+    "name": "renderer",
+    "src": "../../src/runtimes/prod/renderer.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "../../node_modules/.pnpm/nitro@3.0.1-alpha.0_chokidar@4.0.3_vite@7.1.11_@types+node@24.7.2_jiti@2.6.1_lightningcss@1.30.2_tsx@4.20.6_/node_modules/nitro/dist/presets/node/runtime/node-server.mjs"
+    ]
+  }
+}

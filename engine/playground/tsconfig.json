@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "Bundler",
+    "verbatimModuleSyntax": true,
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM"],
+    "module": "ESNext",
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "paths": {
+      "elysiatech/*": ["../src/*"]
+    }
+  }
+}
