@@ -2,7 +2,9 @@
   "name": "@100x/react",
   "type": "module",
   "version": "0.0.1",
-  "scripts": {},
+  "scripts": {
+    "build": "tsx build.ts"
+  },
   "dependencies": {
     "@babel/core": "^7.28.4",
     "@babel/parser": "^7.28.4",

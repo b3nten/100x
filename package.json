@@ -2,6 +2,9 @@
   "name": "100x",
   "private": true,
   "type": "module",
+  "scripts": {
+    "build": "tsx build && pnpm i"
+  },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/node": "^22.18.0",
