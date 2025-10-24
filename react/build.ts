@@ -3,6 +3,7 @@ import fs from "node:fs";
 
 const builder = new Builder({
   entryPoints: ["src/**/*.ts"],
+  external: ["./src/runtimes/clientDev.ts"],
   bundle: true,
   format: "esm",
   target: ["es2022"],
