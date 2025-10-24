@@ -1,7 +1,7 @@
 {
   "name": "@100x/application",
   "type": "module",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "publishConfig": {
     "access": "public"
   },
@@ -17,7 +17,8 @@
     "defu": "^6.1.4",
     "vite-tsconfig-paths": "^5.1.4",
     "@remix-run/node-fetch-server": "^0.11.0",
-    "sirv": "3.0.2"
+    "sirv": "3.0.2",
+    "@std/toml": "jsr:^1.0.11"
   },
   "peerDependencies": {
     "@100x/engine": "^0.0.1"

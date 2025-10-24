@@ -130,7 +130,7 @@ const packageJson = (name, usingReact) => `{
     "build": "application build"
   },
   "dependencies": {
-    "@100x/application": "^0.0.8",
+    "@100x/application": "^0.0.11",
     "@100x/engine": "^0.0.3",
     "typescript": "^5.9.3",
     "hono": "^4.10.2"
@@ -221,4 +221,7 @@ async function fileExists(filePath) {
 const targets = {
   Node: "Node",
   Cloudflare: "Cloudflare",
+  "Netlify Functions": "NetlifyFunctions",
+  "Netlify Edge": "NetlifyEdge",
+  Vercel: "Vercel",
 };

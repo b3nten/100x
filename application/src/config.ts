@@ -8,14 +8,28 @@ import { VirtualFileSystem } from "./vfs";
 import tsConfigPaths from "vite-tsconfig-paths";
 import { serverMiddleware } from "./serverMiddleware";
 import { runCatching } from "@100x/engine/lib";
-import { AbsolutePath, RelativePath } from "./utils.ts";
+import {
+  AbsolutePath,
+  fileExists,
+  RelativePath,
+  resolveUnknownExtension,
+} from "./utils.ts";
 import { defaultRuntimes, runtimeDirectory } from "./runtimes/paths.ts";
 import { defaultEntries } from "./defaultEntries/index.ts";
 import { join } from "path";
-import { readFileSync, rmSync } from "fs";
+import {
+  copyFileSync,
+  cpSync,
+  mkdirSync,
+  readFileSync,
+  rmdirSync,
+  rmSync,
+  writeFileSync,
+} from "fs";
 import virtualServerFile from "./virtual/server.ts";
-import type { Logger } from "@100x/engine/logging";
+import { colors, Logger, logger, LogLevel } from "@100x/engine/logging";
 import { isUndefined } from "@100x/engine/checks";
+import * as toml from "@std/toml";
 
 export type ApplicationPlugin = (
   config: ApplicationConfigurator,
@@ -373,20 +387,198 @@ export const BuildTargets = {
       });
     }
   }),
-  Cloudflare: buildPlugin(({ serverRuntime, viteConfig, mode }) => {
-    serverRuntime(
-      "prod",
-      join(runtimeDirectory, "cloudflare", "prod", "server"),
-    );
-    if (mode === "prod") {
-      viteConfig({
-        ssr: {
-          target: "webworker",
-          noExternal: true,
-        },
+  Cloudflare: buildPlugin(
+    ({ serverRuntime, viteConfig, beforeBuild, afterBuild, mode }) => {
+      const logger = new Logger(
+        "build:cloudflare",
+        LogLevel.Info,
+        colors.orange,
+      );
+
+      serverRuntime(
+        "prod",
+        join(runtimeDirectory, "cloudflare", "prod", "server"),
+      );
+
+      afterBuild(() => {
+        const path = resolveUnknownExtension("wrangler", [
+          ".json",
+          ".jsonc",
+          ".toml",
+        ]);
+        if (!path) {
+          writeFileSync(
+            "wrangler.jsonc",
+            JSON.stringify(
+              {
+                name: "100x-application",
+                compatibility_date: new Date().toISOString().split("T")[0],
+                main: "dist/main.js",
+                assets: {
+                  html_handling: "none",
+                  directory: "dist/public",
+                },
+              },
+              null,
+              2,
+            ),
+            "utf8",
+          );
+          logger.info(
+            "Wrangler configuration file created. Be sure to update the name of your project.",
+          );
+        } else if (path.endsWith(".json") || path.endsWith(".jsonc")) {
+          const file = readFileSync(path, "utf8");
+          const config = JSON.parse(file);
+          config.main = "dist/main.js";
+          config.assets = {
+            html_handling: "none",
+            directory: "dist/public",
+          };
+          writeFileSync(path, JSON.stringify(config, null, 2), "utf8");
+          logger.info("Wrangler configuration file updated.");
+        } else {
+          const file = readFileSync(path, "utf8");
+          const config = toml.parse(file);
+          config.main = "dist/main.js";
+          config.assets = {
+            html_handling: "none",
+            directory: "dist/public",
+          };
+          writeFileSync(path, toml.stringify(config), "utf8");
+          logger.info("Wrangler configuration file updated.");
+        }
+
+        logger.info("Preview: npx wrangler dev");
+        logger.info("Deploy: npx wrangler publish");
       });
-    }
-  }),
+
+      if (mode === "prod") {
+        viteConfig({
+          ssr: {
+            target: "webworker",
+            noExternal: true,
+          },
+        });
+      }
+    },
+  ),
+  NetlifyFunctions: buildPlugin(
+    ({ serverRuntime, viteConfig, afterBuild, mode }) => {
+      serverRuntime(
+        "prod",
+        join(runtimeDirectory, "netlify", "prod", "server"),
+      );
+
+      afterBuild(async () => {
+        if (await fileExists("netlify.toml")) {
+          const file = readFileSync("netlify.toml", "utf8");
+          const config = toml.parse(file);
+          config.build ??= {};
+          (config.build as any).publish = "dist/public";
+          config.functions ??= {};
+          (config.functions as any).directory = "dist/";
+          writeFileSync("netlify.toml", toml.stringify(config), "utf8");
+          logger.info("Netlify configuration file updated.");
+        } else {
+          const config = {
+            build: {
+              publish: "dist/public",
+            },
+            functions: {
+              directory: "dist/",
+            },
+          };
+          writeFileSync("netlify.toml", toml.stringify(config), "utf8");
+          logger.info("Netlify configuration file created.");
+        }
+      });
+
+      if (mode === "prod") {
+        viteConfig({
+          ssr: {
+            target: "node",
+            noExternal: true,
+          },
+        });
+      }
+    },
+  ),
+  NetlifyEdge: buildPlugin(
+    ({ serverRuntime, viteConfig, afterBuild, mode }) => {
+      serverRuntime(
+        "prod",
+        join(runtimeDirectory, "netlify", "prod", "server"),
+      );
+
+      afterBuild(async () => {
+        if (await fileExists("netlify.toml")) {
+          const file = readFileSync("netlify.toml", "utf8");
+          const config = toml.parse(file);
+          config.build ??= {};
+          (config.build as any).publish = "dist/public";
+          (config.build as any).edge_functions = "dist";
+
+          writeFileSync("netlify.toml", toml.stringify(config), "utf8");
+          logger.info("Netlify configuration file updated.");
+        } else {
+          const config = {
+            build: {
+              publish: "dist/public",
+              edge_functions: "dist",
+            },
+          };
+          writeFileSync("netlify.toml", toml.stringify(config), "utf8");
+          logger.info("Netlify configuration file created.");
+        }
+      });
+
+      if (mode === "prod") {
+        viteConfig({
+          ssr: {
+            target: "webworker",
+            noExternal: true,
+          },
+        });
+      }
+    },
+  ),
+  Vercel: buildPlugin(
+    async ({ afterBuild, viteConfig, mode, serverRuntime }) => {
+      serverRuntime("prod", join(runtimeDirectory, "vercel", "prod", "server"));
+
+      afterBuild(() => {
+        cpSync("dist/public", ".vercel/output/static", { recursive: true });
+        cpSync("dist/main.js", ".vercel/output/functions/main.func/main.js");
+        try {
+          cpSync("dist/server", ".vercel/output/functions/main.func/server");
+        } catch {}
+        writeFileSync(
+          ".vercel/output/functions/main.func/.vc-config.json",
+          JSON.stringify(
+            {
+              handler: "main.js",
+              runtime: "nodejs24.x",
+              launcherType: "Nodejs",
+              supportsResponseStreaming: true,
+            },
+            null,
+            2,
+          ),
+        );
+        rmSync("dist", { recursive: true, force: true });
+      });
+
+      if (mode === "prod") {
+        viteConfig({
+          ssr: {
+            target: "node",
+            noExternal: true,
+          },
+        });
+      }
+    },
+  ),
 } satisfies Record<string, BuildPlugin>;
 
 Object.freeze(BuildTargets);

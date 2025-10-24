@@ -22,7 +22,25 @@ export async function build() {
 
   const vite = await createBuilder(config.vite);
 
+  for (const plugin of config.beforeBuildCallbacks) {
+    try {
+      await plugin();
+    } catch (error) {
+      logger.error(`Error in beforeBuild callback: ${error}`);
+      process.exit(1);
+    }
+  }
+
   await vite.buildApp();
+
+  for (const plugin of config.afterBuildCallbacks) {
+    try {
+      await plugin();
+    } catch (error) {
+      logger.error(`Error in afterBuild callback: ${error}`);
+      process.exit(1);
+    }
+  }
 
   console.log("");
   logger.success("Build completed");
