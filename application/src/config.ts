@@ -12,7 +12,7 @@ import { AbsolutePath, RelativePath } from "./utils.ts";
 import { defaultRuntimes, runtimeDirectory } from "./runtimes/paths.ts";
 import { defaultEntries } from "./defaultEntries/index.ts";
 import { join } from "path";
-import { readFileSync } from "fs";
+import { readFileSync, rmSync } from "fs";
 import virtualServerFile from "./virtual/server.ts";
 import type { Logger } from "@100x/engine/logging";
 import { isUndefined } from "@100x/engine/checks";
@@ -285,6 +285,7 @@ export async function configureApplication(args: {
     environments: {
       client: {
         build: {
+          emptyOutDir: false,
           manifest: true,
           outDir: "dist/public",
           rollupOptions: {
@@ -309,6 +310,7 @@ export async function configureApplication(args: {
     environments: {
       ssr: {
         build: {
+          emptyOutDir: false,
           copyPublicDir: false,
           rollupOptions: {
             input: {
@@ -321,6 +323,19 @@ export async function configureApplication(args: {
           },
         },
         consumer: "server",
+      },
+    },
+  });
+
+  // require to have manifest ready for server build
+  app.viteConfig({
+    builder: {
+      async buildApp(builder) {
+        try {
+          rmSync("dist");
+        } catch {}
+        await builder.build(builder.environments["client"]!);
+        await builder.build(builder.environments["ssr"]!);
       },
     },
   });

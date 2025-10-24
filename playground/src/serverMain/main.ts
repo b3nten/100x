@@ -1,31 +1,23 @@
 import { clientEntry } from "@100x/application/server";
+import { Hono } from "hono";
 
-// export default defineRenderHandler((_ctx) => ({
-//   body: template,
-//   headers: {
-//     "content-type": "text/html",
-//   },
-// }));
+const app = new Hono();
 
-export default () =>
-  new Response(template, {
-    headers: {
-      "content-type": "text/html",
-    },
-  });
+app.get("/api/ping", (c) => c.text("pong"));
 
-const template = `
-<!DOCTYPE html>
-<head>
-	${clientEntry.css.map((href) => `<link rel="stylesheet" href="${href}">`).join("\n")}
-	<script type="module" src="${clientEntry.file}"></script>
-</head>
-<body>
-	<h1>Hello World</h1>
-</body>
-</html>
-`;
+app.get("*", (c) =>
+  c.html(`
+  <!DOCTYPE html>
+  <head>
+  ${clientEntry.css.map((href) => `<link rel="stylesheet" href="${href}">`).join("\n")}
+	  <script type="module" src="${clientEntry.file}"></script>
+	</head>
+	<body>
+	  <h1>Hello World!</h1>
+		<p>Welcome to 100x!</p>
+	</body>
+	</html>
+`),
+);
 
-if (import.meta.hot) {
-  import.meta.hot.accept();
-}
+export default app.fetch;

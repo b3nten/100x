@@ -31,10 +31,6 @@ async function main() {
     process.exit(1);
   }
 
-  // const usingReact = await consola.prompt("Use React plugin?", {
-  //   type: "confirm",
-  //   initial: false,
-  // });
   const usingReact = false;
 
   const target = await consola.prompt(
@@ -60,10 +56,6 @@ async function main() {
   await fs.mkdir(path.join(process.cwd(), name, "src", "serverMain"), {
     recursive: true,
   });
-  await fs.mkdir(
-    path.join(process.cwd(), name, "src", "serverMain", "routes", "api"),
-    { recursive: true },
-  );
   await fs.mkdir(
     path.join(process.cwd(), name, "src", "clientMain", "assets"),
     { recursive: true },
@@ -96,24 +88,6 @@ async function main() {
   await fs.writeFile(
     path.join(process.cwd(), name, "src", "serverMain", "main.ts"),
     serverMain,
-  );
-
-  await fs.writeFile(
-    path.join(process.cwd(), name, "src", "serverMain", "renderer.ts"),
-    renderMain,
-  );
-
-  await fs.writeFile(
-    path.join(
-      process.cwd(),
-      name,
-      "src",
-      "serverMain",
-      "routes",
-      "api",
-      "ping.ts",
-    ),
-    apiPing,
   );
 
   logger.success(`Application ${name} created successfully`);
@@ -156,21 +130,23 @@ const packageJson = (name, usingReact) => `{
     "build": "application build"
   },
   "dependencies": {
-    "@100x/application": "^0.0.1",
-    "@100x/engine": "^0.0.1",
-    "typescript": "^5.9.3"
+    "@100x/application": "^0.0.7",
+    "@100x/engine": "^0.0.3",
+    "typescript": "^5.9.3",
+    "hono": "^4.10.2"
   }
 }
 `;
 
 const config = (
   target,
-  usingReact,
-) => `import { Application } from "@100x/application";
+) => `import { Application, BuildTargets } from "@100x/application";
 
-export default new Application(({ buildFor, BuildTarget, plugin }) => {
-	${`buildFor(BuildTarget.${targets[target]})`}
-})`;
+export default Application(({ buildFor, clientEntry, serverEntry }) => {
+  buildFor(BuildTargets.${target});
+  clientEntry("src/clientMain/main");
+  serverEntry("src/serverMain/main");
+});`;
 
 const tsconfig = `{
   "compilerOptions": {
@@ -210,41 +186,28 @@ const clientMain = `import "~/clientMain/assets/styles.css"
 console.log("Hello from clientMain!")
 `;
 
-const serverMain = `import { defineHandler } from "@100x/application/server";
+const serverMain = `import { clientEntry } from "@100x/application/server";
+import { Hono } from 'hono'
 
-function loggingMiddleware(url: URL) {
-  console.log(\`[\${Date.now()}] request: \${url.pathname}\`);
-}
+const app = new Hono()
 
-export default defineHandler((ctx) => {
-  loggingMiddleware(ctx.url);
-});`;
+app.get("/api/ping", c => c.text("pong"))
 
-const renderMain = `import { defineRenderHandler, clientEntry } from "@100x/application/server";
+app.get("*", c => c.html(\`
+  <!DOCTYPE html>
+  <head>
+  \${clientEntry.css.map(href => \`<link rel="stylesheet" href="\${href}">\`).join("\\n")}
+	  <script type="module" src="\${clientEntry.file}"></script>
+	</head>
+	<body>
+	  <h1>Hello World!</h1>
+		<p>Welcome to 100x!</p>
+	</body>
+	</html>
+\`))
 
-export default defineRenderHandler((_ctx) => ({
-	body: template,
-	headers: {
-		"content-type": "text/html",
-	}
-}))
-
-const template = \`
-<!DOCTYPE html>
-<head>
-	\${clientEntry.css.map(href => \`<link rel="stylesheet" href="\${href}">\`).join("\\n")}
-	<script type="module" src="\${clientEntry.file}"></script>
-</head>
-<body>
-	<h1>Hello World!</h1>
-</body>
-</html>
-\`
+export default app.fetch;
 `;
-
-const apiPing = `import { defineHandler } from "@100x/application/server";
-
-export default defineHandler(() => "ping");`;
 
 async function fileExists(filePath) {
   try {
@@ -257,13 +220,5 @@ async function fileExists(filePath) {
 
 const targets = {
   Node: "Node",
-  "Node (Custom Handler)": "NodeHandler",
-  Deno: "Deno",
-  Bun: "Bun",
   Cloudflare: "Cloudflare",
-  Netlify: "Netlify",
-  "Deno Deploy": "DenoDeploy",
-  Azure: "Azure",
-  "AWS Lambda": "AWSLambda",
-  Vercel: "Vercel",
 };

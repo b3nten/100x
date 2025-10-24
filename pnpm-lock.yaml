@@ -70,11 +70,14 @@ importers:
   playground:
     dependencies:
       '@100x/application':
-        specifier: workspace:^
+        specifier: ^0.0.7
         version: link:../application
       '@100x/engine':
-        specifier: workspace:^
+        specifier: ^0.0.3
         version: link:../engine
+      hono:
+        specifier: ^4.10.2
+        version: 4.10.2
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -783,6 +786,10 @@ packages:
   has-flag@3.0.0:
     resolution: {integrity: sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw==}
     engines: {node: '>=4'}
+
+  hono@4.10.2:
+    resolution: {integrity: sha512-p6fyzl+mQo6uhESLxbF5WlBOAJMDh36PljwlKtP5V1v09NxlqGru3ShK+4wKhSuhuYf8qxMmrivHOa/M7q0sMg==}
+    engines: {node: '>=16.9.0'}
 
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
@@ -1627,6 +1634,8 @@ snapshots:
   globrex@0.1.2: {}
 
   has-flag@3.0.0: {}
+
+  hono@4.10.2: {}
 
   jiti@2.6.1: {}
 
