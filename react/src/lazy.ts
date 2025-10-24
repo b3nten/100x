@@ -93,9 +93,6 @@ const lazyRoutes = applicationPlugin(({ vitePlugin, virtualFile }) => {
                     p.join(p.dirname(relativeFilePath), importPath),
                   );
                   if (!resolvedImportPath) return null;
-                  if (!resolvedImportPath.startsWith("/")) {
-                    resolvedImportPath = "/" + resolvedImportPath;
-                  }
                   routesToImports[matchPath.join(".")] ??= new Set();
                   routesToImports[matchPath.join(".")]!.add(resolvedImportPath);
                 }
