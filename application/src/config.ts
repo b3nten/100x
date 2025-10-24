@@ -32,6 +32,7 @@ export type BuildPlugin = (
 export const buildPlugin = (plugin: BuildPlugin): BuildPlugin => plugin;
 
 export type ApplicationConfig = {
+  mode: "dev" | "prod";
   port?: number;
   plugins: ApplicationPlugin[];
   vite: {
@@ -64,6 +65,10 @@ export class ApplicationConfigurator {
   }
 
   constructor(private _config: ApplicationConfig) {}
+
+  get mode() {
+    return this._config.mode;
+  }
 
   readonly port = (port: number) => {
     this._config.port = port;
@@ -132,6 +137,7 @@ export async function configureApplication(args: {
 }) {
   const { mode, userConfigFunction, logger } = args;
   const config: ApplicationConfig = {
+    mode,
     vite: {
       plugins: [],
     },
@@ -356,26 +362,30 @@ export async function configureApplication(args: {
 }
 
 export const BuildTargets = {
-  Node: buildPlugin(({ serverRuntime, viteConfig }) => {
+  Node: buildPlugin(({ serverRuntime, viteConfig, mode }) => {
     serverRuntime("prod", join(runtimeDirectory, "node", "prod", "server"));
-    viteConfig({
-      ssr: {
-        target: "node",
-        noExternal: true,
-      },
-    });
+    if (mode === "prod") {
+      viteConfig({
+        ssr: {
+          target: "node",
+          noExternal: true,
+        },
+      });
+    }
   }),
-  Cloudflare: buildPlugin(({ serverRuntime, viteConfig }) => {
+  Cloudflare: buildPlugin(({ serverRuntime, viteConfig, mode }) => {
     serverRuntime(
       "prod",
       join(runtimeDirectory, "cloudflare", "prod", "server"),
     );
-    viteConfig({
-      ssr: {
-        target: "webworker",
-        noExternal: true,
-      },
-    });
+    if (mode === "prod") {
+      viteConfig({
+        ssr: {
+          target: "webworker",
+          noExternal: true,
+        },
+      });
+    }
   }),
 } satisfies Record<string, BuildPlugin>;
 
