@@ -70,8 +70,8 @@ importers:
   playground:
     dependencies:
       '@100x/application':
-        specifier: ^0.0.7
-        version: 0.0.7(@100x/engine@engine)(@types/node@24.9.1)(jiti@2.6.1)(tsx@4.20.6)(typescript@5.9.3)
+        specifier: latest
+        version: link:../application
       '@100x/engine':
         specifier: ^0.0.3
         version: link:../engine
@@ -85,7 +85,7 @@ importers:
   react:
     dependencies:
       '@100x/application':
-        specifier: ^0.0.8
+        specifier: ^0.0.9
         version: link:../application
       '@100x/engine':
         specifier: ^0.0.3
@@ -151,12 +151,6 @@ importers:
         version: 24.9.1
 
 packages:
-
-  '@100x/application@0.0.7':
-    resolution: {integrity: sha512-9EDcT7Bbz6EfYc3OaG2jRKIzSEqfSkrWXbCRb5Wy4w4+rauO+aCii4gtLqIyIuCkkMYyx5DLVUm4uaRyKj2KFA==}
-    hasBin: true
-    peerDependencies:
-      '@100x/engine': ^0.0.1
 
   '@100x/engine@0.0.1':
     resolution: {integrity: sha512-Qm3lKWJSQAlbKp6Yt2quxkMm542a22O2Mr66E/cdYbsise5ZpyL9mg2wnUG2kwY2/FBaZqSB2D4LlNgYXPyaew==}
@@ -1079,31 +1073,6 @@ packages:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
 snapshots:
-
-  '@100x/application@0.0.7(@100x/engine@engine)(@types/node@24.9.1)(jiti@2.6.1)(tsx@4.20.6)(typescript@5.9.3)':
-    dependencies:
-      '@100x/engine': link:engine
-      '@remix-run/node-fetch-server': 0.11.0
-      c12: 3.3.1
-      defu: 6.1.4
-      sirv: 3.0.2
-      vite: 7.1.12(@types/node@24.9.1)(jiti@2.6.1)(tsx@4.20.6)
-      vite-tsconfig-paths: 5.1.4(typescript@5.9.3)(vite@7.1.12(@types/node@24.9.1)(jiti@2.6.1)(tsx@4.20.6))
-    transitivePeerDependencies:
-      - '@types/node'
-      - jiti
-      - less
-      - lightningcss
-      - magicast
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - typescript
-      - yaml
 
   '@100x/engine@0.0.1(jolt-physics@0.31.0)(three@0.172.0)':
     optionalDependencies:

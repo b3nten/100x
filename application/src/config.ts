@@ -356,14 +356,26 @@ export async function configureApplication(args: {
 }
 
 export const BuildTargets = {
-  Node: buildPlugin(({ serverRuntime }) => {
+  Node: buildPlugin(({ serverRuntime, viteConfig }) => {
     serverRuntime("prod", join(runtimeDirectory, "node", "prod", "server"));
+    viteConfig({
+      ssr: {
+        target: "node",
+        noExternal: true,
+      },
+    });
   }),
-  Cloudflare: buildPlugin(({ serverRuntime }) => {
+  Cloudflare: buildPlugin(({ serverRuntime, viteConfig }) => {
     serverRuntime(
       "prod",
       join(runtimeDirectory, "cloudflare", "prod", "server"),
     );
+    viteConfig({
+      ssr: {
+        target: "webworker",
+        noExternal: true,
+      },
+    });
   }),
 } satisfies Record<string, BuildPlugin>;
 
