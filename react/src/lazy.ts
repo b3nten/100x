@@ -26,7 +26,7 @@ const lazyRoutes = applicationPlugin(({ vitePlugin, virtualFile }) => {
   virtualFile("lazy-routes", () => {
     try {
       const file = readFileSync(
-        "./.output/public/.vite/lazyImports.json",
+        "./dist/public/.vite/lazyImports.json",
         "utf-8",
       );
       if (file) {
