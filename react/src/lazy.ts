@@ -124,7 +124,7 @@ ${lazyComponents.map((c) => `if(!__lazyComponentImports.has("${c}")) __lazyCompo
       }
     },
     buildEnd() {
-      mkdirSync("./.output/public/.vite", { recursive: true });
+      mkdirSync("./dist/public/.vite", { recursive: true });
       writeFileSync(
         "./dist/public/.vite/lazyImports.json",
         `{
