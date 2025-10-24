@@ -130,7 +130,7 @@ const packageJson = (name, usingReact) => `{
     "build": "application build"
   },
   "dependencies": {
-    "@100x/application": "^0.0.7",
+    "@100x/application": "^0.0.8",
     "@100x/engine": "^0.0.3",
     "typescript": "^5.9.3",
     "hono": "^4.10.2"

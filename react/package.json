@@ -24,7 +24,7 @@
   "peerDependencies": {
     "@100x/engine": "^0.0.3",
     "@100x/router": "^0.0.2",
-    "@100x/application": "^0.0.7",
+    "@100x/application": "^0.0.8",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "react": "^19.2.0",
