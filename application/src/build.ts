@@ -1,22 +1,26 @@
 import { createBuilder } from "vite";
 import { loadConfig } from "c12";
-import { Application } from "./mod.ts";
-import { configure } from "./configure.ts";
 import { Logger, LogLevel } from "@100x/engine/logging";
+import { configureApplication, type ApplicationPlugin } from "./config.ts";
 
 const logger = new Logger("application:build", LogLevel.Info);
 
 export async function build() {
   logger.info("Building app");
-  const configFile = await loadConfig<Application>({
+
+  const configFile = await loadConfig<{
+    userConfigFunction: ApplicationPlugin;
+  }>({
     configFile: "app.config",
   });
 
-  const app = configFile.layers![0].config ?? new Application();
+  const config = await configureApplication({
+    logger,
+    mode: "prod",
+    userConfigFunction: configFile.config.userConfigFunction,
+  });
 
-  await configure(app, "prod");
-
-  const vite = await createBuilder(app.config.vite);
+  const vite = await createBuilder(config.vite);
 
   await vite.buildApp();
 

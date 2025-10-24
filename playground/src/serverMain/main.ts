@@ -1,12 +1,18 @@
 import { clientEntry } from "@100x/application/server";
 
-export default () => {
-  return new Response(template, {
+// export default defineRenderHandler((_ctx) => ({
+//   body: template,
+//   headers: {
+//     "content-type": "text/html",
+//   },
+// }));
+
+export default () =>
+  new Response(template, {
     headers: {
-      "Content-Type": "text/html",
+      "content-type": "text/html",
     },
   });
-};
 
 const template = `
 <!DOCTYPE html>
@@ -15,6 +21,11 @@ const template = `
 	<script type="module" src="${clientEntry.file}"></script>
 </head>
 <body>
+	<h1>Hello World</h1>
 </body>
 </html>
 `;
+
+if (import.meta.hot) {
+  import.meta.hot.accept();
+}

@@ -5,7 +5,7 @@ import * as t from "@babel/types";
 import * as p from "node:path";
 import process from "node:process";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import type { ApplicationPlugin } from "@100x/application";
+import { applicationPlugin } from "@100x/application";
 
 export function resolveUnknownExtension(
   path: string | undefined | null,
@@ -19,7 +19,7 @@ export function resolveUnknownExtension(
   return null;
 }
 
-const lazyRoutes: ApplicationPlugin = ({ vitePlugins, virtualFile }) => {
+const lazyRoutes = applicationPlugin(({ vitePlugin, virtualFile }) => {
   const routesToImports: Record<string, Set<string>> = {};
 
   let lazyRoutes = `export default {}`;
@@ -38,7 +38,7 @@ const lazyRoutes: ApplicationPlugin = ({ vitePlugins, virtualFile }) => {
     }
   });
 
-  vitePlugins({
+  vitePlugin({
     name: "lazy-component-parser",
     transform(code, id) {
       try {
@@ -140,7 +140,7 @@ ${lazyComponents.map((c) => `if(!__lazyComponentImports.has("${c}")) __lazyCompo
       );
     },
   });
-};
+});
 
 export default lazyRoutes;
 

@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsx build && pnpm i"
+    "build": "tsx build && pnpm i",
+    "build:app": "cd application && pnpm build && cd .. && pnpm i"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

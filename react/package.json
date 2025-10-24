@@ -1,7 +1,7 @@
 {
   "name": "@100x/react",
   "type": "module",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "publishConfig": {
     "access": "public"
   },
@@ -19,12 +19,12 @@
     "@babel/plugin-proposal-decorators": "^7.28.0"
   },
   "devDependencies": {
-    "@types/react": "^19.0.0"
+    "@types/react": "^19.2.0"
   },
   "peerDependencies": {
-    "@100x/engine": "^0.0.1",
-    "@100x/router": "^0.0.1",
-    "@100x/application": "^0.0.1",
+    "@100x/engine": "^0.0.3",
+    "@100x/router": "^0.0.2",
+    "@100x/application": "^0.0.7",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "react": "^19.2.0",

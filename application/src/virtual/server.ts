@@ -4,13 +4,6 @@ export default (
   mode: string,
 ) => `
 import m from 'virtual:100x/vite-manifest';
-${
-  mode === "dev"
-    ? `export * from 'nitro/runtime';
-export * from 'nitro/h3';`
-    : `export * from "@100x/application/lib/nitro";`
-}
-
 export const manifest = m;
 
 for(const key in manifest) {

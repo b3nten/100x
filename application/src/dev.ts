@@ -1,33 +1,39 @@
 import { createServer, type UserConfig, type ViteDevServer } from "vite";
 import { watchConfig } from "c12";
-import { Application } from "./mod.ts";
-import { configure } from "./configure.ts";
 import { Logger, LogLevel } from "@100x/engine/logging";
+import { noop } from "@100x/engine/lib";
+import { configureApplication, type ApplicationPlugin } from "./config.ts";
 
 const logger = new Logger("application:dev", LogLevel.Info);
 
 export async function dev() {
   const vite = new ViteDevInstance();
 
-  async function init(configFile: any) {
-    let app = configFile.layers![0].config! as Application;
-    if (!app || !("config" in app)) {
-      app = new Application();
-    }
-    await configure(app, "dev");
-    await vite.create(app.config.vite);
+  async function init({
+    userConfigFunction,
+  }: {
+    userConfigFunction: ApplicationPlugin;
+  }) {
+    const config = await configureApplication({
+      logger,
+      mode: "dev",
+      userConfigFunction,
+    });
+    await vite.create(config.vite);
   }
 
   logger.info("Starting development server...");
 
-  const configFile = await watchConfig<Application>({
+  const configFile = await watchConfig<{
+    userConfigFunction: ApplicationPlugin;
+  }>({
     configFile: "app.config",
     onUpdate: async ({ newConfig }) => {
-      await init(newConfig);
+      await init(newConfig.config);
     },
   });
 
-  await init(configFile);
+  await init(configFile.config);
 }
 
 class ViteDevInstance {
