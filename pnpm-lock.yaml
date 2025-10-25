@@ -73,14 +73,17 @@ importers:
   playground:
     dependencies:
       '@100x/application':
-        specifier: latest
+        specifier: workspace:*
         version: link:../application
       '@100x/engine':
-        specifier: ^0.0.3
+        specifier: workspace:*
         version: link:../engine
+      '@100x/react':
+        specifier: workspace:*
+        version: link:../react
       '@100x/router':
-        specifier: ^0.0.2
-        version: 0.0.2(@100x/engine@engine)(mobx@6.15.0)
+        specifier: workspace:*
+        version: link:../router
       hono:
         specifier: ^4.10.2
         version: 4.10.2
@@ -97,8 +100,8 @@ importers:
         specifier: ^0.0.3
         version: link:../engine
       '@100x/router':
-        specifier: ^0.0.2
-        version: 0.0.2(@100x/engine@engine)(mobx@6.15.0)
+        specifier: ^0.0.4
+        version: link:../router
       '@babel/core':
         specifier: ^7.28.4
         version: 7.28.5
@@ -171,12 +174,6 @@ packages:
         optional: true
       three:
         optional: true
-
-  '@100x/router@0.0.2':
-    resolution: {integrity: sha512-IP4p/Pa0f0yGvXLTs0r+oxAjDnKPcfT5Gt8E1Ry4fcejQJm5ZXbOngfiCRg9LTBmCAx7BqLwIy9SOlwi/EB4ug==}
-    peerDependencies:
-      '@100x/engine': ^0.0.1
-      mobx: ^6.15.0
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -1099,12 +1096,6 @@ snapshots:
     optionalDependencies:
       jolt-physics: 0.31.0
       three: 0.172.0
-
-  '@100x/router@0.0.2(@100x/engine@engine)(mobx@6.15.0)':
-    dependencies:
-      '@100x/engine': link:engine
-      '@remix-run/route-pattern': 0.14.0
-      mobx: 6.15.0
 
   '@babel/code-frame@7.27.1':
     dependencies:

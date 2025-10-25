@@ -406,6 +406,7 @@ export const BuildTargets = {
           ".jsonc",
           ".toml",
         ]);
+        console.log("");
         if (!path) {
           writeFileSync(
             "wrangler.jsonc",

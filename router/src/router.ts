@@ -54,11 +54,11 @@ export const routes = createRoutes;
 export const group = createRoutes;
 
 export class RouteMatch {
-  get data() {
+  get data(): unknown[] {
     if (!this.#hasRunHandlers) {
       this.runHandlers();
     }
-    return this.#handlersResult;
+    return this.#handlersResult!;
   }
 
   runHandlers() {

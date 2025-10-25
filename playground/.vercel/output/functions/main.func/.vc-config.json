@@ -1,6 +1,0 @@
-{
-  "handler": "main.js",
-  "runtime": "nodejs24.x",
-  "launcherType": "Nodejs",
-  "supportsResponseStreaming": true
-}
