@@ -1,15 +1,12 @@
 {
   "name": "@100x/router",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "build": "tsx build.ts"
-  },
-  "dependencies": {
-    "@remix-run/route-pattern": "^0.14.0"
   },
   "peerDependencies": {
     "@100x/engine": "^0.0.3",

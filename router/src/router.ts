@@ -3,7 +3,7 @@ import {
   type Params,
   RegExpMatcher,
   RoutePattern,
-} from "@remix-run/route-pattern";
+} from "../vendor/@remix-run/route-pattern@0.14.0";
 import type {
   RoutesWithHandlerType,
   BuildRouteMap,
@@ -51,7 +51,18 @@ export class RouteDefinition<const R extends RouteDefs> {
 }
 
 export const routes = createRoutes;
-export const group = createRoutes;
+
+export function group<P extends string, const R extends RouteDefs>(
+  base: P,
+  defs: R,
+) {
+  return {
+    root: new RoutePattern<`${P}*`>(
+      (base + "*") as `${P}*`,
+    ) as unknown as RouteInstance<`${P}*`>,
+    ...createRoutes(base, defs),
+  };
+}
 
 export class RouteMatch {
   get data(): unknown[] {

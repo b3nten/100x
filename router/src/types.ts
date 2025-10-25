@@ -1,4 +1,8 @@
-import { type Join, type Params, RoutePattern } from "@remix-run/route-pattern";
+import {
+  type Join,
+  type Params,
+  RoutePattern,
+} from "../vendor/@remix-run/route-pattern@0.14.0";
 import { RouteInstance } from "./router.ts";
 
 export interface RouteMap<T extends string = string> {

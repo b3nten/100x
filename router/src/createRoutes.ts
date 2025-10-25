@@ -1,5 +1,5 @@
 import type { BuildRouteMap, RouteDefs, RouteMap } from "./types.ts";
-import { RoutePattern } from "@remix-run/route-pattern";
+import { RoutePattern } from "../vendor/@remix-run/route-pattern@0.14.0";
 import { RouteInstance } from "./router.ts";
 
 function buildRouteMap<P extends string, R extends RouteDefs>(

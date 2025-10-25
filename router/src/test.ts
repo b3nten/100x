@@ -1,4 +1,4 @@
-import { RoutePattern } from "@remix-run/route-pattern";
+import { RoutePattern } from "../vendor/@remix-run/route-pattern@0.14.0";
 import {
   group,
   Router,
@@ -10,12 +10,10 @@ const routeDefs = new RouteDefinition({
   root: new RoutePattern("*"),
   home: new RoutePattern("/"),
   about: group("/about", {
-    root: "*",
     index: new RoutePattern("/"),
     details: new RoutePattern("/details"),
     more: new RoutePattern("/more"),
     company: group("/company", {
-      root: "*",
       index: new RoutePattern("/"),
       about: new RoutePattern("/about"),
       contact: new RoutePattern("/contact"),
@@ -27,12 +25,12 @@ const handlersA = routeDefs.createHandlers({
   root: () => ({ meta: { title: "Company" } }),
   home: () => ({ meta: { title: "Home" } }),
   about: {
-    root: () => ({ meta: { title: "About Root" } }),
+    // root: () => ({ meta: { title: "About Root" } }),
     index: () => ({ meta: { title: "About" } }),
     details: () => ({ meta: { title: "About Details" } }),
     more: () => ({ meta: { title: "About More" } }),
     company: {
-      root: () => "COMPANY ROOT",
+      // root: () => "COMPANY ROOT",
       index: () => ({ meta: { title: "Company" } }),
       about: () => ({ meta: { title: "Company About" } }),
       contact: () => ({ meta: { title: "Company Contact" } }),
