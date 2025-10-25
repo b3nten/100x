@@ -2,8 +2,8 @@ export {
   type InferRouteHandler,
   routes,
   group,
-  Routes,
-  RouteDefinition,
+  RouteDefinition as Routes,
+  RouteInstance as RouteDefinition,
   RouteMatch,
   Router,
 } from "./router";

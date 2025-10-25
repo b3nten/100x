@@ -1,7 +1,7 @@
 {
   "name": "@100x/router",
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publishConfig": {
     "access": "public"
   },
@@ -12,11 +12,12 @@
     "@remix-run/route-pattern": "^0.14.0"
   },
   "peerDependencies": {
-    "@100x/engine": "^0.0.1",
+    "@100x/engine": "^0.0.3",
     "mobx": "^6.15.0"
   },
   "devDependencies": {
-    "@types/node": "^24.9.1"
+    "@types/node": "^24.9.1",
+    "typescript": "^5.3.3"
   },
   "files": [
     ".build",

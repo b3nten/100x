@@ -1,14 +1,13 @@
-import { RouteMatch, Router, type RouteDefinition } from "./router.ts";
-import type {
-  BuildRouteMap,
-  RouteHandlersMap,
-  RoutesWithHandlerType,
-} from "./types.ts";
+import {
+  RouteDefinition,
+  RouteMatch,
+  Router,
+  type RouteInstance,
+} from "./router.ts";
+import type { RouteHandlersMap } from "./types.ts";
 import { action, observable, runInAction } from "mobx";
-import {runCatching} from "@100x/engine/lib";
-import {isRecord} from "@100x/engine/checks";
-
-export type RouteData = RouteMatch<any, any> & { data: unknown };
+import { runCatching } from "@100x/engine/lib";
+import { isRecord } from "@100x/engine/checks";
 
 export interface ClientRouterMiddleware {
   /**
@@ -17,7 +16,7 @@ export interface ClientRouterMiddleware {
    * If an array of routes is provided, the middleware will only apply if the path matches any of the routes.
    * If undefined, the middleware will apply to all routes.
    */
-  appliesTo?: Readonly<RouteDefinition[] | ((path: string) => boolean)>;
+  appliesTo?: Readonly<RouteInstance[] | ((path: string) => boolean)>;
 
   /**
    * Called before the router navigates to the given route.
@@ -26,7 +25,7 @@ export interface ClientRouterMiddleware {
    */
   onBeforeNavigate?: (
     to: string,
-    nextMatches: RouteData[],
+    nextMatches: RouteMatch[],
   ) => void | Promise<void>;
   /**
    * Called after the router navigates to the given route.
@@ -37,20 +36,17 @@ export interface ClientRouterMiddleware {
    * Called when the router matches the given route.
    * @param matches
    */
-  onMatches?: (
-    matches: RouteData[],
-  ) => void;
+  onMatches?: (matches: RouteMatch[]) => void;
 }
 
 export class ClientRouter<
-  T extends BuildRouteMap | RoutesWithHandlerType<any, any>,
-  H extends RouteHandlersMap<T>,
+  T extends RouteDefinition<any>,
+  H extends RouteHandlersMap<T["definitions"]>[],
 > extends Router<T, H> {
-  @observable
-  private accessor _query = new URLSearchParams([]);
+  @observable private accessor _searchParams = new URLSearchParams([]);
 
-  public get query() {
-    return this._query;
+  public get searchParams() {
+    return this._searchParams;
   }
 
   @observable private accessor _hash = "";
@@ -73,9 +69,7 @@ export class ClientRouter<
     return this._href;
   }
 
-  @observable.shallow accessor matches: Array<
-    RouteMatch<any, any> & { data: unknown }
-  > = [];
+  @observable.shallow accessor matches: RouteMatch[] = [];
 
   constructor(config: {
     routes: T;
@@ -95,12 +89,12 @@ export class ClientRouter<
     this._href = config.url?.href ?? window.location.href;
     this._pathname = config.url?.pathname ?? window.location.pathname;
     this._hash = config.url?.hash ?? window.location.hash;
-    this._query =
+    this._searchParams =
       config.url?.searchParams ?? new URLSearchParams(window.location.search);
     config.middlewares?.forEach((m) => {
       this.middlewares.add(m);
     });
-    this.matches = this.matchCached(this._href);
+    this.matches = this.match(this._href);
     this.middlewares.forEach((m) =>
       runCatching(() => {
         m.onMatches?.(this.matches);
@@ -129,7 +123,7 @@ export class ClientRouter<
       return;
     }
     this.nextPath = path;
-    const newMatches = this.matchCached(path);
+    const newMatches = this.match(path);
     const middleWarePromises = [];
     for (const m of this.middlewareIterator(this.href)) {
       const maybePromise = runCatching(() =>
@@ -170,9 +164,9 @@ export class ClientRouter<
   protected navigateImpl(
     path: string,
     args: { replace?: boolean; state?: any } = { replace: false, state: null },
-    matches?: Array<RouteMatch<any, any> & { data: unknown }>,
+    matches?: Array<RouteMatch>,
   ) {
-    this.matches = matches ?? this.matchCached(path);
+    this.matches = matches ?? this.match(path);
     for (const m of this.middlewareIterator(path)) {
       runCatching(() => {
         m.onMatches?.(this.matches);
@@ -192,33 +186,6 @@ export class ClientRouter<
     this.nextPath = null;
   }
 
-  protected matchCached(path: string | URL) {
-    const url = Router.createURL(path);
-    const matches = this.match(url);
-    const result: Array<RouteMatch<any, any> & { data: unknown }> = [];
-    for (const match of matches) {
-      let cached = this.routeData.get(url.href);
-      if (!cached) {
-        cached = new Map();
-        this.routeData.set(url.href, cached);
-      }
-      const cachedData = cached.get(match.route);
-      if (cachedData) {
-        // @ts-ignore
-        match.data = cachedData;
-      } else {
-        // @ts-ignore
-        match.data = runCatching(() => match.handler());
-        // @ts-ignore
-        cached.set(match.route, match.data);
-      }
-      result.push(match as RouteData);
-    }
-    return result;
-  }
-
-  protected routeData = new Map<string, Map<RouteDefinition, unknown>>();
-
   protected *middlewareIterator(path: string) {
     for (const m of this.middlewares) {
       if (
@@ -232,7 +199,7 @@ export class ClientRouter<
   }
 
   protected internalUpdate() {
-    this._query = new URLSearchParams(window.location.search);
+    this._searchParams = new URLSearchParams(window.location.search);
     this._hash = window.location.hash;
     this._pathname = window.location.pathname;
     this._href = window.location.href;
@@ -240,20 +207,24 @@ export class ClientRouter<
 }
 
 export class MetaRouteMiddleware implements ClientRouterMiddleware {
-    onMatches(matches: RouteData[]) {
-        for(const meta of this.matchIter(matches)) {
-            if("title" in meta && typeof meta.title === "string") {
-                document.title = meta.title
-            }
-        }
+  onMatches(matches: RouteMatch[]) {
+    for (const meta of this.matchIter(matches)) {
+      if ("title" in meta && typeof meta.title === "string") {
+        document.title = meta.title;
+      }
     }
-    private *matchIter(matches: RouteData[]): IterableIterator<object> {
-        for (const match of matches) {
-            if(isRecord(match.data) && "meta" in match.data && isRecord(match.data.meta)) {
-                yield match.data.meta
-            }
-        }
+  }
+  private *matchIter(matches: RouteMatch[]): IterableIterator<object> {
+    for (const match of matches) {
+      if (
+        isRecord(match.data) &&
+        "meta" in match.data &&
+        isRecord(match.data.meta)
+      ) {
+        yield match.data.meta;
+      }
     }
+  }
 }
 
 {
@@ -279,4 +250,3 @@ export class MetaRouteMiddleware implements ClientRouterMiddleware {
     Object.defineProperty(window, patchKey, { value: true });
   }
 }
-

@@ -11,13 +11,15 @@ import type {
   RouteHandler,
   RouteHandlersMap,
   RouteMap,
+  MergeAllHandlers,
 } from "./types.ts";
 import { createRoutes } from "./createRoutes.ts";
 
 export type { InferRouteHandler } from "./types.ts";
 
-export class RouteDefinition<P extends string = string> {
+export class RouteInstance<P extends string = string> {
   readonly pattern: RoutePattern<P>;
+  readonly id: string;
 
   constructor(pattern: P | RoutePattern<P>, id: string) {
     this.pattern =
@@ -32,73 +34,56 @@ export class RouteDefinition<P extends string = string> {
   match(url: string | URL) {
     return this.pattern.match(url);
   }
-
-  readonly id: string;
 }
 
-export class Routes<P extends string, const R extends RouteDefs> {
-  definitions: BuildRouteMap<P, R>;
+export class RouteDefinition<const R extends RouteDefs> {
+  definitions: BuildRouteMap<"/", R>;
 
-  constructor(base: P | RoutePattern<P>, defs: R) {
-    this.definitions = createRoutes(base, defs);
+  constructor(defs: R) {
+    this.definitions = createRoutes("/", defs);
   }
 
   createHandlers<
-    Handlers = Readonly<RouteHandlersMap<(typeof this)["definitions"]>>,
+    Handlers extends Readonly<RouteHandlersMap<(typeof this)["definitions"]>>,
   >(handlers: Handlers) {
     return handlers;
-  }
-
-  withHandlerTypes<
-    Handlers extends RouteHandlersMap<(typeof this)["definitions"]>,
-  >(): Handlers extends RouteHandlersMap<(typeof this)["definitions"]>
-    ? RoutesWithHandlerType<(typeof this)["definitions"], Handlers>
-    : never {
-    return this.definitions as any;
   }
 }
 
 export const routes = createRoutes;
+export const group = createRoutes;
 
-export function group<P extends string, const R extends RouteDefs>(
-  base: P,
-  defs: R,
-) {
-  return {
-    group: base + "*",
-    ...createRoutes(base, defs),
-  } as Readonly<{ group: `${P}*` }> & BuildRouteMap<P, R>;
-}
-
-export class RouteMatch<P extends string, T> {
-  readonly url: URL;
-  readonly params: Params<P>;
-  readonly route: RouteDefinition<P>;
-  readonly handlerFunction?: RouteHandler<T>;
-  readonly handler: () => unknown;
-
-  constructor(args: {
-    url: URL;
-    params: Params<P>;
-    route: RouteDefinition<P>;
-    handler: RouteHandler<T>;
-  }) {
-    this.url = args.url;
-    this.params = args.params;
-    this.route = args.route;
-    this.handlerFunction = args.handler;
-    this.handler = () => {
-      return this.handlerFunction?.({
-        url: this.url,
-        params: this.params,
-      });
-    };
+export class RouteMatch {
+  get data() {
+    if (!this.#hasRunHandlers) {
+      this.runHandlers();
+    }
+    return this.#handlersResult;
   }
+
+  runHandlers() {
+    this.#handlersResult = this.handlers.map((handler) =>
+      handler(this.url, this.params),
+    );
+    this.#hasRunHandlers = true;
+    return this.#handlersResult;
+  }
+
+  constructor(
+    public readonly url: URL,
+    public readonly route: RouteInstance,
+    public readonly handlers: Array<RouteHandler<any>>,
+    public readonly params: Params<any>,
+  ) {}
+
+  #hasRunHandlers = false;
+
+  #handlersResult?: unknown[];
 }
 
 export class Router<
-  T extends BuildRouteMap | RoutesWithHandlerType<any, any>,
-  H extends RouteHandlersMap<T>,
+  T extends RouteDefinition<any>,
+  H extends RouteHandlersMap<T["definitions"]>[],
 > {
   static createURL = (path: string | URL): URL =>
     path instanceof URL
@@ -112,58 +97,49 @@ export class Router<
               : "http://0.0.0.0",
           );
 
-  routes: T;
-  handlers: H;
+  readonly routes: RoutesWithHandlerType<T["definitions"], MergeAllHandlers<H>>;
+  readonly handlers: H;
 
   constructor(routes: T, handlers: H) {
-    this.routes = routes;
+    this.routes = routes.definitions as any;
     this.handlers = handlers;
-    this.map(routes, handlers);
+    this.map(routes.definitions, handlers);
   }
 
   public match(path: string | URL) {
     path = Router.createURL(path);
-    const data: Array<RouteMatch<any, any>> = [];
+    const data: Array<RouteMatch> = [];
     for (let match of this.matcher.matchAll(path)) {
       data.push(
-        new RouteMatch({
-          url: match.url,
-          params: match.params,
-          route: match.data.route,
-          handler: match.data.handler,
-        }),
+        new RouteMatch(
+          match.url,
+          match.data.route,
+          match.data.handlers,
+          match.params,
+        ),
       );
     }
     return data;
   }
 
-  private map<P extends string>(
-    route: P | RoutePattern<P> | RouteDefinition<P>,
-    handler: any,
-  ): void;
-  private map<T extends RouteMap>(
-    routes: T,
-    handlers: RouteHandlersMap<T>,
-  ): void;
-  private map(routeOrRoutes: any, handler: any): void {
-    if (routeOrRoutes instanceof RouteDefinition) {
-      this.matcher.add(routeOrRoutes.pattern, {
-        handler,
-        route: routeOrRoutes,
+  private map(route: RouteInstance<any>, handlers?: Function[]): void;
+  private map(route: RouteMap<any>, handlers: RouteHandlersMap<any>[]): void;
+  private map(routeDefinitionOrRouteMap: any, handlers: any[]): void {
+    if (routeDefinitionOrRouteMap instanceof RouteInstance) {
+      if (!handlers.length) return;
+      this.matcher.add(routeDefinitionOrRouteMap.pattern, {
+        route: routeDefinitionOrRouteMap,
+        handlers,
       });
-    } else if (handler) {
-      let handlers = handler;
-      for (let key in routeOrRoutes) {
-        let route = routeOrRoutes[key];
-        let handler = handlers[key];
-        if (route instanceof RouteDefinition) {
-          this.matcher.add(route.pattern, {
-            handler,
-            route,
-          });
-        } else {
-          this.map(route, handler);
+    } else {
+      for (let key in routeDefinitionOrRouteMap) {
+        const newHandlers: any[] = [];
+        for (let handler of handlers) {
+          if (handler[key]) {
+            newHandlers.push(handler[key]);
+          }
         }
+        this.map(routeDefinitionOrRouteMap[key], newHandlers);
       }
     }
   }

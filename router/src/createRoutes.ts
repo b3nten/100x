@@ -1,6 +1,6 @@
 import type { BuildRouteMap, RouteDefs, RouteMap } from "./types.ts";
 import { RoutePattern } from "@remix-run/route-pattern";
-import { RouteDefinition } from "./router.ts";
+import { RouteInstance } from "./router.ts";
 
 function buildRouteMap<P extends string, R extends RouteDefs>(
   base: RoutePattern<P>,
@@ -9,16 +9,16 @@ function buildRouteMap<P extends string, R extends RouteDefs>(
 ): BuildRouteMap<P, R> {
   let routes: any = {};
   for (let key in defs) {
-    let def = defs[key] as RouteDefinition | string | RoutePattern | RouteDefs;
-    if (def instanceof RouteDefinition) {
-      routes[key] = new RouteDefinition(
+    let def = defs[key] as RouteInstance | string | RoutePattern | RouteDefs;
+    if (def instanceof RouteInstance) {
+      routes[key] = new RouteInstance(
         base.join(def.pattern),
         `${pathBase}${key}`,
       );
     } else if (typeof def === "string" || def instanceof RoutePattern) {
-      routes[key] = new RouteDefinition(base.join(def), `${pathBase}${key}`);
+      routes[key] = new RouteInstance(base.join(def), `${pathBase}${key}`);
     } else if (typeof def === "object" && def != null && "pattern" in def) {
-      routes[key] = new RouteDefinition(
+      routes[key] = new RouteInstance(
         base.join((def as any).pattern),
         `${pathBase}${key}`,
       );
