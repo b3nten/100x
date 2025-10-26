@@ -218,12 +218,10 @@ export class MetaRouteMiddleware implements ClientRouterMiddleware {
   }
   private *matchIter(matches: RouteMatch[]): IterableIterator<object> {
     for (const match of matches) {
-      if (
-        isRecord(match.data) &&
-        "meta" in match.data &&
-        isRecord(match.data.meta)
-      ) {
-        yield match.data.meta;
+      for (const data of match.data) {
+        if (isRecord(data) && "meta" in data && isRecord(data.meta)) {
+          yield data.meta;
+        }
       }
     }
   }
