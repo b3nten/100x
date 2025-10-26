@@ -1,7 +1,7 @@
 {
   "name": "@100x/react",
   "type": "module",
-  "version": "0.0.20",
+  "version": "0.0.24",
   "publishConfig": {
     "access": "public"
   },
@@ -16,7 +16,8 @@
     "@babel/types": "^7.28.4",
     "react-refresh": "^0.18.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "@babel/plugin-proposal-decorators": "^7.28.0"
+    "@babel/plugin-proposal-decorators": "^7.28.0",
+    "react-error-boundary": "^6.0.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.0"

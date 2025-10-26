@@ -39,7 +39,7 @@ export const Route = observer(function <T extends RouteInstance>({
 }) {
   const router = useRouter();
   const doesMatch = params
-    ? route.match(router.href) && router.href === route.href(params)
+    ? route.match(router.href) && router.pathname === route.href(params)
     : route.match(router.href);
   if (!doesMatch) return null;
   return createElement(
@@ -91,15 +91,28 @@ export const LazyRoute = observer(function <
     () =>
       router.addMiddleware({
         onBeforeNavigate(_, nextMatches) {
-          if (nextMatches.some((m) => m.route === props.match)) {
+          if (
+            (!props.params &&
+              nextMatches.some((m) => m.route === props.match)) ||
+            nextMatches.some(
+              (m) =>
+                m.route === props.match &&
+                m.route.href(props.params) === router.pathname,
+            )
+          ) {
             setPreloadPromise(getComponentPromise(importPath));
           }
         },
       }),
-    [props.match, router],
+    [props.match, router, hashParams(props.params)],
   );
 
-  if (props.match.match(router.href)) {
+  const doesMatch = props.params
+    ? props.match.match(router.href) &&
+      router.pathname === props.match.href(props.params)
+    : props.match.match(router.href);
+
+  if (doesMatch) {
     const mod = use(getComponentPromise(importPath));
     return createElement(Route, {
       match: props.match,
@@ -153,3 +166,6 @@ export function useRouteTransition(transitionFunction: () => Promise<any>) {
     [transitionFunction, router, route],
   );
 }
+
+const hashParams = (params?: Record<string, string>) =>
+  params ? Object.values(params).join(":") : "";

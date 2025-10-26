@@ -16,3 +16,5 @@ export {
   useComponentQuery,
   useComponentResolver,
 } from "./ecs";
+export { ErrorBoundary } from "react-error-boundary";
+export { Boundary } from "./boundary.ts";
