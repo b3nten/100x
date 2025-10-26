@@ -14,9 +14,7 @@
     "noEmitOnError": false,
     "emitDeclarationOnly": true,
     "allowImportingTsExtensions": true,
-    "strict": true,
-    "stripInternal": true
+    "strict": true
   },
-  "include": [
-    "./src/**/*.ts"]
+  "include": ["./src/**/*.ts"]
 }

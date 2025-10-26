@@ -100,7 +100,7 @@ importers:
         specifier: ^0.0.3
         version: link:../engine
       '@100x/router':
-        specifier: ^0.0.4
+        specifier: ^0.0.14
         version: link:../router
       '@babel/core':
         specifier: ^7.28.4
@@ -148,9 +148,6 @@ importers:
       '@100x/engine':
         specifier: ^0.0.3
         version: link:../engine
-      '@remix-run/route-pattern':
-        specifier: ^0.14.0
-        version: 0.14.0
       mobx:
         specifier: ^6.15.0
         version: 6.15.0
@@ -534,9 +531,6 @@ packages:
 
   '@remix-run/node-fetch-server@0.11.0':
     resolution: {integrity: sha512-nCrFHVxDFioSHc0g/3m5ztwgjBt7g8qh/UwmYkDjuMePKFepMKfNGgH5S6L7iXKX+jUrf3ooVmhx3NGIoa9iYA==}
-
-  '@remix-run/route-pattern@0.14.0':
-    resolution: {integrity: sha512-Wlq1LAsGZBJ5uEnUmxJDBQvpLKhay1mVvxmNl0oeKBOin6yWDB5YkJkSMAlYQi7mM/vVIDlqr183MiHi4SO7AA==}
 
   '@rolldown/pluginutils@1.0.0-beta.38':
     resolution: {integrity: sha512-N/ICGKleNhA5nc9XXQG/kkKHJ7S55u0x0XUJbbkmdCnFuoRkM1Il12q9q0eX19+M7KKUEPw/daUPIRnxhcxAIw==}
@@ -1408,8 +1402,6 @@ snapshots:
   '@polka/url@1.0.0-next.29': {}
 
   '@remix-run/node-fetch-server@0.11.0': {}
-
-  '@remix-run/route-pattern@0.14.0': {}
 
   '@rolldown/pluginutils@1.0.0-beta.38': {}
 

@@ -1,9 +1,3 @@
-import {
-  type HrefBuilderArgs,
-  type Params,
-  RegExpMatcher,
-  RoutePattern,
-} from "../vendor/@remix-run/route-pattern@0.14.0";
 import type {
   RoutesWithHandlerType,
   BuildRouteMap,
@@ -14,6 +8,10 @@ import type {
   MergeAllHandlers,
 } from "./types.ts";
 import { createRoutes } from "./createRoutes.ts";
+import { RoutePattern } from "./vendor/@remix-run/route-pattern@0.14.0/route-pattern.ts";
+import type { HrefBuilderArgs } from "./vendor/@remix-run/route-pattern@0.14.0/href.ts";
+import type { Params } from "./vendor/@remix-run/route-pattern@0.14.0/params.ts";
+import { RegExpMatcher } from "./vendor/@remix-run/route-pattern@0.14.0/regexp-matcher.ts";
 
 export type { InferRouteHandler } from "./types.ts";
 
@@ -51,18 +49,6 @@ export class RouteDefinition<const R extends RouteDefs> {
 }
 
 export const routes = createRoutes;
-
-export function group<P extends string, const R extends RouteDefs>(
-  base: P,
-  defs: R,
-) {
-  return {
-    root: new RoutePattern<`${P}*`>(
-      (base + "*") as `${P}*`,
-    ) as unknown as RouteInstance<`${P}*`>,
-    ...createRoutes(base, defs),
-  };
-}
 
 export class RouteMatch {
   get data(): unknown[] {

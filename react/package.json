@@ -1,7 +1,7 @@
 {
   "name": "@100x/react",
   "type": "module",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "publishConfig": {
     "access": "public"
   },
@@ -23,7 +23,7 @@
   },
   "peerDependencies": {
     "@100x/engine": "^0.0.3",
-    "@100x/router": "^0.0.4",
+    "@100x/router": "^0.0.14",
     "@100x/application": "^0.0.11",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",

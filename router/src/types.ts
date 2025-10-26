@@ -1,28 +1,13 @@
-import {
-  type Join,
-  type Params,
-  RoutePattern,
-} from "../vendor/@remix-run/route-pattern@0.14.0";
 import { RouteInstance } from "./router.ts";
+import type { Join } from "./vendor/@remix-run/route-pattern@0.14.0/join.ts";
+import type { Params } from "./vendor/@remix-run/route-pattern@0.14.0/params.ts";
+import type { RoutePattern } from "./vendor/@remix-run/route-pattern@0.14.0/route-pattern.ts";
 
 export interface RouteMap<T extends string = string> {
   [K: string]: RouteInstance<T> | RouteMap<T>;
 }
 
 export type BuildRouteMap<
-  P extends string = string,
-  R extends RouteDefs = RouteDefs,
-> = Simplify<{
-  [K in keyof R]: R[K] extends RouteInstance<infer S extends string>
-    ? RouteInstance<Join<P, S>>
-    : R[K] extends RouteDef
-      ? BuildRoute<P, R[K]>
-      : R[K] extends RouteDefs
-        ? BuildRouteMap<P, R[K]>
-        : never;
-}>;
-
-export type BuildRouteMapWithGroup<
   P extends string = string,
   R extends RouteDefs = RouteDefs,
 > = Simplify<{
@@ -73,26 +58,39 @@ export type RouteHandlerArgs<T extends RouteInstance> =
 declare const routeHandlerType: unique symbol;
 
 export type RouteHandlersMap<RM extends RouteMap> = Readonly<{
-  [RMKey in keyof RM]?: RM[RMKey] extends RouteInstance<infer U>
-    ? RouteHandler<Params<U>>
+  [RMKey in keyof RM]?: RM[RMKey] extends RouteInstance
+    ? RouteHandler<RM[RMKey]>
     : RM[RMKey] extends RouteMap
       ? RouteHandlersMap<RM[RMKey]>
       : never;
 }>;
 
+// export type RoutesWithHandlerType<
+//   RM extends RouteMap<any>,
+//   Handlers extends {
+//     [P in keyof RM]?: ((...args: any) => any) | RouteHandlersMap<any>;
+//   },
+// > = {
+//   [K in keyof RM]: Handlers[K] extends RouteHandler<RM[K]>
+//     ? RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> }
+//     : RM[K] extends RouteMap
+//       ? Handlers[K] extends RouteHandlersMap<RM[K]>
+//         ? RoutesWithHandlerType<RM[K], Handlers[K]>
+//         : RM[K]
+//       : RM[K];
+// };
+
 export type RoutesWithHandlerType<
   RM extends RouteMap<any>,
   Handlers extends {
-    [P in keyof RM]?: ((...args: any) => any) | RouteHandlersMap<RM[P]>;
+    [P in keyof RM]?: ((...args: any) => any) | RouteHandlersMap<any>;
   },
 > = {
-  [K in keyof RM]: Handlers[K] extends RouteHandler<any>
-    ? RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> }
-    : RM[K] extends RouteMap
-      ? Handlers[K] extends RouteHandlersMap<RM[K]>
-        ? RoutesWithHandlerType<RM[K], Handlers[K]>
-        : RM[K]
-      : never;
+  [K in keyof RM]: RM[K] extends RouteMap
+    ? Handlers[K] extends RouteHandlersMap<RM[K]>
+      ? RoutesWithHandlerType<RM[K], Handlers[K]>
+      : RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> }
+    : RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> };
 };
 
 export type InferRouteHandler<T> = T extends { [routeHandlerType]: infer R }

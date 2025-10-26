@@ -12,6 +12,7 @@ import {
 import { RouteInstance, type InferRouteHandler } from "@100x/router";
 import { useRouter } from "./router.ts";
 import { nonNullOrThrow } from "@100x/engine/asserts";
+import type { Params } from "@100x/router";
 
 export const routeContext = createContext<RouteInstance | null>(null);
 
@@ -24,25 +25,34 @@ export const useRoute = <T extends RouteInstance>(): T =>
 export const Route = observer(function <T extends RouteInstance>({
   match: route,
   children,
+  params,
 }: {
   match: T;
   children:
     | ReactNode
     | ReactNode[]
-    | ((data: InferRouteHandler<T>) => ReactNode | ReactNode[] | null);
+    | ((
+        data: InferRouteHandler<T>,
+        params: T extends RouteInstance<infer U> ? Params<U> : never,
+      ) => ReactNode | ReactNode[] | null);
+  params?: T extends RouteInstance<infer U> ? Params<U> : never;
 }) {
   const router = useRouter();
+  const doesMatch = params
+    ? route.match(router.href) && router.href === route.href(params)
+    : route.match(router.href);
+  if (!doesMatch) return null;
   return createElement(
     routeContext.Provider,
     { value: route },
-    route.match(router.href)
-      ? typeof children === "function"
-        ? children(
-            router.matches.find((m) => m.route === route)
-              ?.data as InferRouteHandler<T>,
-          )
-        : children
-      : null,
+    typeof children === "function"
+      ? children(
+          router.matches.find((m) => m.route === route)
+            ?.data as InferRouteHandler<T>,
+          // @ts-ignore
+          route.match(router.href)?.params ?? {},
+        )
+      : children,
   );
 });
 
@@ -63,9 +73,11 @@ export const LazyRoute = observer(function <
 >(props: {
   match: R;
   import: C;
+  params?: R extends RouteInstance<infer U> ? Params<U> : never;
   children: (
     Component: Awaited<ReturnType<C>>["default"],
     data: InferRouteHandler<R>,
+    params: R extends RouteInstance<infer U> ? Params<U> : never,
   ) => ReactNode;
 }) {
   const importPath = props.import as unknown as string;
@@ -91,8 +103,13 @@ export const LazyRoute = observer(function <
     const mod = use(getComponentPromise(importPath));
     return createElement(Route, {
       match: props.match,
-      children: (data) =>
-        props.children(mod.default, data as InferRouteHandler<R>),
+      params: props.params,
+      children: (data, params) =>
+        props.children(
+          mod.default,
+          data as InferRouteHandler<R>,
+          params as any,
+        ),
     });
   }
 

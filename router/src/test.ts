@@ -1,28 +1,23 @@
-import { RoutePattern } from "../vendor/@remix-run/route-pattern@0.14.0";
-import {
-  group,
-  Router,
-  RouteDefinition,
-  type InferRouteHandler,
-} from "./router";
+import { Router, RouteDefinition, type InferRouteHandler } from "./router";
+import { group } from "./group";
 
 const routeDefs = new RouteDefinition({
-  root: new RoutePattern("*"),
-  home: new RoutePattern("/"),
+  root: "*",
+  home: "/",
   about: group("/about", {
-    index: new RoutePattern("/"),
-    details: new RoutePattern("/details"),
-    more: new RoutePattern("/more"),
+    index: "/",
+    details: "/details",
+    more: "/more/:foo",
     company: group("/company", {
-      index: new RoutePattern("/"),
-      about: new RoutePattern("/about"),
-      contact: new RoutePattern("/contact"),
+      index: "/",
+      about: "/about",
+      contact: "/contact",
     }),
   }),
 });
 
 const handlersA = routeDefs.createHandlers({
-  root: () => ({ meta: { title: "Company" } }),
+  root: (url, {}) => ({ meta: { title: "Company" } }),
   home: () => ({ meta: { title: "Home" } }),
   about: {
     // root: () => ({ meta: { title: "About Root" } }),
@@ -33,7 +28,7 @@ const handlersA = routeDefs.createHandlers({
       // root: () => "COMPANY ROOT",
       index: () => ({ meta: { title: "Company" } }),
       about: () => ({ meta: { title: "Company About" } }),
-      contact: () => ({ meta: { title: "Company Contact" } }),
+      // contact: () => ({ meta: { title: "Company Contact" } }),
     },
   },
 });
@@ -43,7 +38,7 @@ const handlersB = routeDefs.createHandlers({
   root: () => ({ meta: { title: "Company" } }),
   about: {
     root: () => ({ meta: { title: "About Root" } }),
-    more: () => ({ meta: { title: "About More" } }),
+    more: () => ({ about: { title: "About More" } }),
     details: () => ({
       details: "details",
     }),
@@ -57,14 +52,8 @@ const handlersB = routeDefs.createHandlers({
   },
 });
 
-const router = new Router(routeDefs, [handlersA, handlersB] as const);
+// const router = new Router(routeDefs, [handlersA, handlersB] as const);
+// router.routes.root;
+// router.routes.about.more;
 
-const x = new RoutePattern("/foo/:id/idk?bar");
-
-console.log(
-  x.href({
-    id: "123",
-  }),
-);
-
-console.log(x.match("https://example.com/foo/123/idk?bar=1"));
+// const X: InferRouteHandler<typeof router.routes.about.more>;
