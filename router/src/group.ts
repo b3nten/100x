@@ -7,10 +7,10 @@ export function group<P extends string, const R extends RouteDefs>(
   base: P,
   defs: R,
 ): {
-  root: RouteInstance<`${P}*`>;
+  root: RouteInstance<`${P}(*)`>;
 } & BuildRouteMap<P, R> {
   return {
-    root: new RoutePattern(base + "*"),
+    root: new RoutePattern(base + "(*)"),
     ...createRoutes(base, defs),
   } as any;
 }

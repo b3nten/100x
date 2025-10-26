@@ -8,6 +8,7 @@ import type { RouteHandlersMap } from "./types.ts";
 import { action, observable, runInAction } from "mobx";
 import { runCatching } from "@100x/engine/lib";
 import { isRecord } from "@100x/engine/checks";
+import { autobind } from "@100x/engine/decorators";
 
 export interface ClientRouterMiddleware {
   /**
@@ -198,6 +199,7 @@ export class ClientRouter<
     }
   }
 
+  @autobind
   protected internalUpdate() {
     this._searchParams = new URLSearchParams(window.location.search);
     this._hash = window.location.hash;
