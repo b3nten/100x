@@ -94,14 +94,14 @@ importers:
   react:
     dependencies:
       '@100x/application':
-        specifier: ^0.0.11
+        specifier: ^0.0.13
         version: link:../application
       '@100x/engine':
-        specifier: ^0.0.3
-        version: link:../engine
+        specifier: ^0.0.4
+        version: 0.0.4(jolt-physics@0.31.0)(three@0.172.0)
       '@100x/router':
-        specifier: ^0.0.14
-        version: 0.0.14(@100x/engine@engine)(mobx@6.15.0)
+        specifier: ^0.0.15
+        version: link:../router
       '@babel/core':
         specifier: ^7.28.4
         version: 7.28.5
@@ -149,11 +149,8 @@ importers:
   router:
     dependencies:
       '@100x/engine':
-        specifier: ^0.0.3
+        specifier: ^0.0.5
         version: link:../engine
-      mobx:
-        specifier: ^6.15.0
-        version: 6.15.0
     devDependencies:
       '@types/node':
         specifier: ^24.9.1
@@ -175,11 +172,16 @@ packages:
       three:
         optional: true
 
-  '@100x/router@0.0.14':
-    resolution: {integrity: sha512-RYgIjAlsb9XfFwKCevUBi2L8vSbbS0aexMoaVqkrh7LWv9vNh7zxQlnq+g969Krzr7D+ji79Kwld/laoH/4zQg==}
+  '@100x/engine@0.0.4':
+    resolution: {integrity: sha512-2XDR3UyjsQjT2azq9flOFNZnuarYGiVrAHX76HxadlujIJIWaoPzvtdNuytyp3pHc/l2qpBMo5BHFOdLl59CAA==}
     peerDependencies:
-      '@100x/engine': ^0.0.3
-      mobx: ^6.15.0
+      jolt-physics: ^0.31.0
+      three: ^0.172.0
+    peerDependenciesMeta:
+      jolt-physics:
+        optional: true
+      three:
+        optional: true
 
   '@babel/code-frame@7.27.1':
     resolution: {integrity: sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg==}
@@ -1109,10 +1111,12 @@ snapshots:
       jolt-physics: 0.31.0
       three: 0.172.0
 
-  '@100x/router@0.0.14(@100x/engine@engine)(mobx@6.15.0)':
+  '@100x/engine@0.0.4(jolt-physics@0.31.0)(three@0.172.0)':
     dependencies:
-      '@100x/engine': link:engine
-      mobx: 6.15.0
+      supports-color: 5.5.0
+    optionalDependencies:
+      jolt-physics: 0.31.0
+      three: 0.172.0
 
   '@babel/code-frame@7.27.1':
     dependencies:

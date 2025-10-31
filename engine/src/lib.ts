@@ -56,17 +56,17 @@ export class Frameloop {
 		requestAnimationFrame(this.#frameLoopUpdate);
 	}
 
-	pause() {
+	pause = () => {
 		this.paused = true;
-	}
+	};
 
-	resume() {
+	resume = () => {
 		this.paused = false;
-	}
+	};
 
-	stop() {
+	stop = () => {
 		this.stopped = true;
-	}
+	};
 
 	readonly #frameLoopUpdate: () => void;
 }
@@ -144,11 +144,17 @@ export function runSafe<T>(fn: () => T): T | undefined {
  * Runs a function and returns a Result indicating success or failure.
  * @param fn
  */
-export function runCatching<T>(fn: () => T): Result<T> {
+export function runCatching<T>(
+	fn: () => T,
+): T extends Promise<infer U> ? Promise<Result<U>> : Result<T> {
 	try {
-		return Ok(fn());
+		const result = fn();
+		if (result instanceof Promise) {
+			return result.then(Ok).catch(Err) as any;
+		}
+		return Ok(result) as any;
 	} catch (e) {
-		return Err(e);
+		return Err(e) as any;
 	}
 }
 

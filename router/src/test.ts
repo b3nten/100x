@@ -51,9 +51,3 @@ const handlersB = routeDefs.createHandlers({
     },
   },
 });
-
-// const router = new Router(routeDefs, [handlersA, handlersB] as const);
-// router.routes.root;
-// router.routes.about.more;
-
-// const X: InferRouteHandler<typeof router.routes.about.more>;

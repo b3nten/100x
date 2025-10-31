@@ -899,6 +899,10 @@ export abstract class System {
   /** The world this system is attached to. */
   readonly world: World = globalThis.ELYSIA_CURRENT_WORLD!;
 
+  get active() {
+    return this.#active;
+  }
+
   /** Called when the system begins it's lifecycle in the world. */
   startup?(): void;
 

@@ -1,7 +1,7 @@
 {
   "name": "@100x/application",
   "type": "module",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "publishConfig": {
     "access": "public"
   },
@@ -21,7 +21,7 @@
     "@std/toml": "jsr:^1.0.11"
   },
   "peerDependencies": {
-    "@100x/engine": "^0.0.1"
+    "@100x/engine": "^0.0.5"
   },
   "files": [
     ".build",

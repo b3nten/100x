@@ -1,4 +1,3 @@
-import { observer } from "mobx-react-lite";
 import {
   createContext,
   createElement,
@@ -22,7 +21,7 @@ export const useRoute = <T extends RouteInstance>(): T =>
     "useRoute must be used within a Route",
   );
 
-export const Route = observer(function <T extends RouteInstance>({
+export function Route<T extends RouteInstance>({
   match: route,
   children,
   params,
@@ -37,11 +36,13 @@ export const Route = observer(function <T extends RouteInstance>({
       ) => ReactNode | ReactNode[] | null);
   params?: T extends RouteInstance<infer U> ? Params<U> : never;
 }) {
-  const router = useRouter();
+  const { router, href, pathname } = useRouter();
+
   const doesMatch = params
-    ? route.match(router.href) && router.pathname === route.href(params)
-    : route.match(router.href);
+    ? route.match(href) && pathname === route.href(params)
+    : route.match(href);
   if (!doesMatch) return null;
+
   return createElement(
     routeContext.Provider,
     { value: route },
@@ -50,11 +51,11 @@ export const Route = observer(function <T extends RouteInstance>({
           router.matches.find((m) => m.route === route)
             ?.data as InferRouteHandler<T>,
           // @ts-ignore
-          route.match(router.href)?.params ?? {},
+          route.match(href)?.params ?? {},
         )
       : children,
   );
-});
+}
 
 declare global {
   var __lazyComponentImports: Map<
@@ -67,13 +68,12 @@ declare global {
   >;
 }
 
-export const LazyRoute = observer(function <
+export function LazyRoute<
   R extends RouteInstance,
   C extends () => Promise<{ default: (props: any) => ReactElement }>,
 >(props: {
   match: R;
   import: C;
-  params?: R extends RouteInstance<infer U> ? Params<U> : never;
   children: (
     Component: Awaited<ReturnType<C>>["default"],
     data: InferRouteHandler<R>,
@@ -81,7 +81,7 @@ export const LazyRoute = observer(function <
   ) => ReactNode;
 }) {
   const importPath = props.import as unknown as string;
-  const router = useRouter();
+  const { router } = useRouter();
   // promise to preload the component
   const [preloadPromise, setPreloadPromise] = useState<Promise<any> | null>(
     null,
@@ -90,33 +90,21 @@ export const LazyRoute = observer(function <
   useEffect(
     () =>
       router.addMiddleware({
-        onBeforeNavigate(_, nextMatches) {
-          if (
-            (!props.params &&
-              nextMatches.some((m) => m.route === props.match)) ||
-            nextMatches.some(
-              (m) =>
-                m.route === props.match &&
-                m.route.href(props.params) === router.pathname,
-            )
-          ) {
+        onBeforeNavigate(_, __, nextMatches) {
+          if (nextMatches.some((m) => m.route === props.match)) {
             setPreloadPromise(getComponentPromise(importPath));
           }
         },
       }),
-    [props.match, router, hashParams(props.params)],
+    [props.match, router],
   );
 
-  const doesMatch = props.params
-    ? props.match.match(router.href) &&
-      router.pathname === props.match.href(props.params)
-    : props.match.match(router.href);
+  const doesMatch = props.match.match(router.href);
 
   if (doesMatch) {
     const mod = use(getComponentPromise(importPath));
     return createElement(Route, {
       match: props.match,
-      params: props.params,
       children: (data, params) =>
         props.children(
           mod.default,
@@ -136,7 +124,7 @@ export const LazyRoute = observer(function <
   }
 
   return null;
-});
+}
 
 function Use(props: { promise: Promise<any> }) {
   use(props.promise);
@@ -155,17 +143,14 @@ function getComponentPromise(importPath: string) {
 }
 
 export function useRouteTransition(transitionFunction: () => Promise<any>) {
-  const router = useRouter();
+  const r = useRouter();
   const route = useRoute();
   useEffect(
     () =>
-      router.addMiddleware({
+      r.router.addMiddleware({
         appliesTo: [route],
         onBeforeNavigate: transitionFunction,
       }),
-    [transitionFunction, router, route],
+    [transitionFunction, r.router, route],
   );
 }
-
-const hashParams = (params?: Record<string, string>) =>
-  params ? Object.values(params).join(":") : "";

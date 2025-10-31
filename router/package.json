@@ -1,7 +1,7 @@
 {
   "name": "@100x/router",
   "type": "module",
-  "version": "0.0.15",
+  "version": "0.0.21",
   "publishConfig": {
     "access": "public"
   },
@@ -9,8 +9,7 @@
     "build": "tsx build.ts"
   },
   "peerDependencies": {
-    "@100x/engine": "^0.0.3",
-    "mobx": "^6.15.0"
+    "@100x/engine": "^0.0.5"
   },
   "devDependencies": {
     "@types/node": "^24.9.1",

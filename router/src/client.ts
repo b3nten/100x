@@ -5,10 +5,9 @@ import {
   type RouteInstance,
 } from "./router.ts";
 import type { RouteHandlersMap } from "./types.ts";
-import { action, observable, runInAction } from "mobx";
 import { runCatching } from "@100x/engine/lib";
 import { isRecord } from "@100x/engine/checks";
-import { autobind } from "@100x/engine/decorators";
+import { createEvent, EventManager } from "@100x/engine/events";
 
 export interface ClientRouterMiddleware {
   /**
@@ -17,7 +16,7 @@ export interface ClientRouterMiddleware {
    * If an array of routes is provided, the middleware will only apply if the path matches any of the routes.
    * If undefined, the middleware will apply to all routes.
    */
-  appliesTo?: Readonly<RouteInstance[] | ((path: string) => boolean)>;
+  appliesTo?: Readonly<RouteInstance[] | ((url: URL) => boolean)>;
 
   /**
    * Called before the router navigates to the given route.
@@ -25,14 +24,15 @@ export interface ClientRouterMiddleware {
    * @param to - href of the route to navigate to
    */
   onBeforeNavigate?: (
-    to: string,
+    from: URL,
+    to: URL,
     nextMatches: RouteMatch[],
   ) => void | Promise<void>;
   /**
    * Called after the router navigates to the given route.
    * @param from - href of the route that was navigated from
    */
-  onAfterNavigate?: (from: string) => void;
+  onAfterNavigate?: (from: URL, to: URL) => void;
   /**
    * Called when the router matches the given route.
    * @param matches
@@ -40,37 +40,68 @@ export interface ClientRouterMiddleware {
   onMatches?: (matches: RouteMatch[]) => void;
 }
 
+export const beforeNavigateEvent = createEvent<{
+  from: URL;
+  to: URL;
+  nextMatches: RouteMatch[];
+}>("ClientRouter::BeforeNavigate");
+
+export const receivedMatchesEvent = createEvent<{
+  matches: RouteMatch[];
+}>("ClientRouter::ReceivedMatches");
+
+export const afterNavigateEvent = createEvent<{
+  from: URL;
+  to: URL;
+}>("ClientRouter::AfterNavigate");
+
+export const navigationEvent = createEvent<{
+  from: URL;
+  to: URL;
+  matches: RouteMatch[];
+}>("ClientRouter::Navigation");
+
 export class ClientRouter<
   T extends RouteDefinition<any>,
   H extends RouteHandlersMap<T["definitions"]>[],
 > extends Router<T, H> {
-  @observable private accessor _searchParams = new URLSearchParams([]);
+  #url: URL;
+  get url() {
+    return this.#url;
+  }
 
   public get searchParams() {
-    return this._searchParams;
+    return this.#url.searchParams;
   }
-
-  @observable private accessor _hash = "";
 
   public get hash() {
-    return this._hash;
+    return this.#url.hash;
   }
-
-  @observable
-  private accessor _pathname = "";
 
   public get pathname() {
-    return this._pathname;
+    return this.#url.pathname;
   }
-
-  @observable
-  private accessor _href = "";
 
   get href() {
-    return this._href;
+    return this.#url.href;
   }
 
-  @observable.shallow accessor matches: RouteMatch[] = [];
+  #matches: RouteMatch[] = [];
+  get matches() {
+    return this.#matches;
+  }
+
+  #previousUrl: URL;
+  get previousUrl() {
+    return this.#previousUrl;
+  }
+
+  #events = new EventManager();
+  register = this.#events.register;
+  unregister = this.#events.unregister;
+
+  #middlewares = new Set<ClientRouterMiddleware>();
+  #nextPath: string | null = null;
 
   constructor(config: {
     routes: T;
@@ -79,132 +110,152 @@ export class ClientRouter<
     url?: URL;
   }) {
     super(config.routes, config.handlers);
+
     for (const event of [
       "popstate",
       "pushState",
       "replaceState",
       "hashchange",
     ]) {
-      addEventListener(event, this.internalUpdate);
+      addEventListener(event, this.#update);
     }
-    this._href = config.url?.href ?? window.location.href;
-    this._pathname = config.url?.pathname ?? window.location.pathname;
-    this._hash = config.url?.hash ?? window.location.hash;
-    this._searchParams =
-      config.url?.searchParams ?? new URLSearchParams(window.location.search);
-    config.middlewares?.forEach((m) => {
-      this.middlewares.add(m);
-    });
-    this.matches = this.match(this._href);
-    this.middlewares.forEach((m) =>
+
+    this.#previousUrl = this.#url =
+      config.url ?? Router.createURL(window.location.href);
+
+    config.middlewares?.forEach((m) => this.#middlewares.add(m));
+
+    this.#matches = this.match(this.url);
+
+    this.#middlewares.forEach((m) => {
       runCatching(() => {
-        m.onMatches?.(this.matches);
-      }),
-    );
+        m.onMatches?.(this.#matches);
+      });
+    });
+
+    this.#events.notify(receivedMatchesEvent, { matches: this.#matches });
   }
 
   /**
    * Navigate to the given path. This will execute all routing middlewares and run the onMatches callback for each matching route.
    * If a promise is returned from any middleware, the navigation will wait for the promise to resolve before continuing.
    * If the path changes while the navigation is in progress, the navigation will be aborted.
-   * @param path
+   * @param to
    * @param args
    */
-  @action
-  async navigate(
-    path: string,
+  navigate = async (
+    to: string | URL,
     args: { replace?: boolean; state?: any } = { replace: false, state: null },
-  ) {
-    path = Router.createURL(path).href;
-    if (this.nextPath) {
-      if (path === this.nextPath) {
-        return;
-      }
-    } else if (path === this.href) {
+  ) => {
+    to = Router.createURL(to);
+    // return if path is the same as current path or next path
+    if (
+      (this.#nextPath && to.href === this.#nextPath) ||
+      to.href === this.href
+    ) {
       return;
     }
-    this.nextPath = path;
-    const newMatches = this.match(path);
+
+    this.#nextPath = to.href;
+
+    const newMatches = this.match(to);
     const middleWarePromises = [];
-    for (const m of this.middlewareIterator(this.href)) {
+    for (const m of this.#middlewareIterator(this.url)) {
       const maybePromise = runCatching(() =>
-        m.onBeforeNavigate?.(this.pathname, newMatches),
+        m.onBeforeNavigate?.(this.url, to, newMatches),
       );
       if (maybePromise instanceof Promise) {
         middleWarePromises.push(maybePromise);
       }
     }
-    await Promise.allSettled(middleWarePromises); // todo: handle specific thrown rejections?
-    if (this.nextPath === path) {
-      runInAction(() => {
-        this.navigateImpl(path, args, newMatches);
-      });
+
+    this.#events.notify(beforeNavigateEvent, {
+      nextMatches: newMatches,
+      from: this.url,
+      to: Router.createURL(to),
+    });
+
+    // max wait time
+    await Promise.race([
+      Promise.allSettled(middleWarePromises),
+      new Promise((_, reject) => setTimeout(reject, 2000)),
+    ]);
+
+    if (this.#nextPath === to.href) {
+      this.#navigate(to, args, newMatches);
     }
-  }
+  };
 
-  @action
-  navigateImmediate(
-    path: string,
+  navigateImmediate = (
+    path: string | URL,
     args: { replace?: boolean; state?: any } = { replace: false, state: null },
-  ) {
-    this.navigateImpl(path, args);
-  }
+  ) => {
+    this.#navigate(path, args);
+  };
 
-  addMiddleware(middleware: ClientRouterMiddleware) {
-    this.middlewares.add(middleware);
-    return () => void this.middlewares.delete(middleware);
-  }
+  addMiddleware = (middleware: ClientRouterMiddleware) => {
+    this.#middlewares.add(middleware);
+    return () => void this.#middlewares.delete(middleware);
+  };
 
-  removeMiddleware(middleware: ClientRouterMiddleware) {
-    this.middlewares.delete(middleware);
-  }
+  removeMiddleware = (middleware: ClientRouterMiddleware) =>
+    this.#middlewares.delete(middleware);
 
-  protected middlewares = new Set<ClientRouterMiddleware>();
-  protected nextPath: string | null = null;
-
-  protected navigateImpl(
-    path: string,
+  #navigate(
+    to: string | URL,
     args: { replace?: boolean; state?: any } = { replace: false, state: null },
     matches?: Array<RouteMatch>,
   ) {
-    this.matches = matches ?? this.match(path);
-    for (const m of this.middlewareIterator(path)) {
+    to = Router.createURL(to);
+    this.#matches = matches ?? this.match(to);
+    for (const m of this.#middlewareIterator(to)) {
       runCatching(() => {
-        m.onMatches?.(this.matches);
+        m.onMatches?.(this.#matches);
       });
     }
+    this.#events.notify(receivedMatchesEvent, { matches: this.#matches });
+
+    this.#previousUrl = this.url;
+
     history[args.replace ? "replaceState" : "pushState"](
       args.state,
       "",
-      Router.createURL(path).href,
+      to.href,
     );
-    this.internalUpdate();
-    for (const m of this.middlewareIterator(path)) {
+
+    for (const m of this.#middlewareIterator(to)) {
       runCatching(() => {
-        m.onAfterNavigate?.(path);
+        m.onAfterNavigate?.(this.previousUrl, to);
       });
     }
-    this.nextPath = null;
+
+    this.#events.notify(afterNavigateEvent, {
+      from: this.#previousUrl,
+      to: to,
+    });
+
+    this.#nextPath = null;
   }
 
-  protected *middlewareIterator(path: string) {
-    for (const m of this.middlewares) {
+  #update = () => {
+    this.#url = Router.createURL(window.location.href);
+    this.#events.notify(navigationEvent, {
+      from: this.#previousUrl,
+      to: this.#url,
+      matches: this.#matches,
+    });
+  };
+
+  *#middlewareIterator(url: URL) {
+    for (const m of this.#middlewares) {
       if (
         !m.appliesTo ||
-        (typeof m.appliesTo === "function" && m.appliesTo(path)) ||
-        (Array.isArray(m.appliesTo) && m.appliesTo.some((r) => r.match(path)))
+        (typeof m.appliesTo === "function" && m.appliesTo(url)) ||
+        (Array.isArray(m.appliesTo) && m.appliesTo.some((r) => r.match(url)))
       ) {
         yield m;
       }
     }
-  }
-
-  @autobind
-  protected internalUpdate() {
-    this._searchParams = new URLSearchParams(window.location.search);
-    this._hash = window.location.hash;
-    this._pathname = window.location.pathname;
-    this._href = window.location.href;
   }
 }
 

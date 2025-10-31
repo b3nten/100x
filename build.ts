@@ -25,15 +25,8 @@ async function build(pkg: string) {
 
 logger.info("Starting build process");
 
-await Promise.all([
-  build("engine"),
-  build("react"),
-  build("application"),
-  build("router"),
-])
-  .then(() => {
-    logger.success("All packages built successfully");
-  })
-  .catch((err) => {
-    logger.error(err.message);
-  });
+await build("engine");
+await build("application");
+await build("router");
+await build("react");
+logger.success("All packages built successfully");

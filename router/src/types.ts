@@ -3,9 +3,31 @@ import type { Join } from "./vendor/@remix-run/route-pattern@0.14.0/join.ts";
 import type { Params } from "./vendor/@remix-run/route-pattern@0.14.0/params.ts";
 import type { RoutePattern } from "./vendor/@remix-run/route-pattern@0.14.0/route-pattern.ts";
 
+type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
 export interface RouteMap<T extends string = string> {
   [K: string]: RouteInstance<T> | RouteMap<T>;
 }
+
+export type RouteDef<T extends string = string> =
+  | T
+  | RoutePattern<T>
+  | { pattern: T | RoutePattern<T> };
+
+export interface RouteDefs {
+  [K: string]: RouteInstance | RouteDef | RouteDefs;
+}
+
+// prettier-ignore
+type BuildRoute<P extends string, D extends RouteDef> =
+	D extends string ? RouteInstance<Join<P, D>> :
+		D extends RoutePattern<infer S extends string> ? RouteInstance<Join<P, S>> :
+			D extends { pattern: infer S } ? (
+					S extends string ? RouteInstance<Join<P, S>> :
+						S extends RoutePattern<infer S extends string> ? RouteInstance<Join<P, S>> :
+							never
+					) :
+				never
 
 export type BuildRouteMap<
   P extends string = string,
@@ -19,28 +41,6 @@ export type BuildRouteMap<
         ? BuildRouteMap<P, R[K]>
         : never;
 }>;
-
-// prettier-ignore
-type BuildRoute<P extends string, D extends RouteDef> =
-	D extends string ? RouteInstance<Join<P, D>> :
-		D extends RoutePattern<infer S extends string> ? RouteInstance<Join<P, S>> :
-			D extends { pattern: infer S } ? (
-					S extends string ? RouteInstance<Join<P, S>> :
-						S extends RoutePattern<infer S extends string> ? RouteInstance<Join<P, S>> :
-							never
-					) :
-				never
-
-type Simplify<T> = { [K in keyof T]: T[K] } & {};
-
-export interface RouteDefs {
-  [K: string]: RouteInstance | RouteDef | RouteDefs;
-}
-
-export type RouteDef<T extends string = string> =
-  | T
-  | RoutePattern<T>
-  | { pattern: T | RoutePattern<T> };
 
 export type RouteHandler<T extends RouteInstance> = (
   url: URL,
@@ -64,40 +64,6 @@ export type RouteHandlersMap<RM extends RouteMap> = Readonly<{
       ? RouteHandlersMap<RM[RMKey]>
       : never;
 }>;
-
-// export type RoutesWithHandlerType<
-//   RM extends RouteMap<any>,
-//   Handlers extends {
-//     [P in keyof RM]?: ((...args: any) => any) | RouteHandlersMap<any>;
-//   },
-// > = {
-//   [K in keyof RM]: Handlers[K] extends RouteHandler<RM[K]>
-//     ? RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> }
-//     : RM[K] extends RouteMap
-//       ? Handlers[K] extends RouteHandlersMap<RM[K]>
-//         ? RoutesWithHandlerType<RM[K], Handlers[K]>
-//         : RM[K]
-//       : RM[K];
-// };
-
-export type RoutesWithHandlerType<
-  RM extends RouteMap<any>,
-  Handlers extends {
-    [P in keyof RM]?: ((...args: any) => any) | RouteHandlersMap<any>;
-  },
-> = {
-  [K in keyof RM]: RM[K] extends RouteMap
-    ? Handlers[K] extends RouteHandlersMap<RM[K]>
-      ? RoutesWithHandlerType<RM[K], Handlers[K]>
-      : RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> }
-    : RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> };
-};
-
-export type InferRouteHandler<T> = T extends { [routeHandlerType]: infer R }
-  ? R extends Array<any>
-    ? R
-    : [R]
-  : void;
 
 type DeepMerge<A, B> = A extends (...args: any[]) => infer AR
   ? B extends (...args: any[]) => infer BR
@@ -164,3 +130,24 @@ export type MergeAllHandlers<H extends any[]> = H extends [
     ? MergeHandlers<First, MergeAllHandlers<Rest>>
     : First
   : {};
+
+export type RoutesWithHandlerType<
+  RM extends RouteMap<any>,
+  Handlers extends {
+    [P in keyof RM]?: ((...args: any) => any) | RouteHandlersMap<any>;
+  },
+> = {
+  [K in keyof RM]: RM[K] extends RouteMap
+    ? Handlers[K] extends RouteHandlersMap<RM[K]>
+      ? RoutesWithHandlerType<RM[K], Handlers[K]>
+      : // @ts-expect-error todo: make exhaustive
+        RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> }
+    : // @ts-expect-error todo: make exhaustive
+      RM[K] & { [routeHandlerType]: ReturnType<Handlers[K]> };
+};
+
+export type InferRouteHandler<T> = T extends { [routeHandlerType]: infer R }
+  ? R extends Array<any>
+    ? R
+    : [R]
+  : void;

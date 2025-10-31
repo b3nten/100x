@@ -1,11 +1,12 @@
 import { Builder, keepStructurePlugin } from "../builder";
 
 const builder = new Builder({
-  entryPoints: ["src/**/*.ts"],
+  entryPoints: ["src/mod.ts"],
+  external: ["@100x/engine"],
   bundle: true,
   format: "esm",
   target: ["es2022"],
-  plugins: [keepStructurePlugin],
+  plugins: [],
 });
 
 builder.cleanOutputDir(".build");
