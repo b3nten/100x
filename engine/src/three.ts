@@ -624,13 +624,13 @@ export class ThreeObjectSystem extends System {
 		}
 
 		this.whenShutdown(
-			this.world.onComponentWithTagAdded(threeObjectTag, this.addThreeObject),
+			this.world.onComponentWithTagAdded(threeObjectTag, this.onAddThreeObject),
 			this.world.onComponentWithTagRemoved(
 				threeObjectTag,
-				this.removeThreeObject,
+				this.onRemoveThreeObject,
 			),
-			this.world.onComponentAdded(Transform, this.transformAdded),
-			this.world.onComponentRemoved(Transform, this.transformRemoved),
+			this.world.onComponentAdded(Transform, this.onTransformAdded),
+			this.world.onComponentRemoved(Transform, this.onTransformRemoved),
 		);
 	}
 
@@ -654,7 +654,7 @@ export class ThreeObjectSystem extends System {
 		Instrumentor.end("ThreeObjectSystem::update");
 	}
 
-	protected addThreeObject = (
+	protected onAddThreeObject = (
 		world: World,
 		entity: EntityID,
 		threeObject: Component,
@@ -663,54 +663,68 @@ export class ThreeObjectSystem extends System {
 			(<any>threeObject).transformless ||
 			world.hasComponent(entity, Transform)
 		) {
-			let o3d: Three.Object3D =
-				threeObject instanceof Three.Object3D
-					? threeObject
-					: (<any>threeObject).object3d;
-			o3d.matrixWorldAutoUpdate = false;
-			this.scene.add(o3d);
+			this.addToScene(threeObject, entity);
 		}
 	};
 
-	protected removeThreeObject = (
+	protected onRemoveThreeObject = (
 		world: World,
 		entity: EntityID,
 		threeObject: Component,
 	) => {
-		let o3d: Three.Object3D =
-			threeObject instanceof Three.Object3D
-				? threeObject
-				: (<any>threeObject).object3d;
-		this.scene.remove(o3d);
+		this.removeFromScene(threeObject);
 	};
 
-	protected transformAdded = (
+	protected onTransformAdded = (
 		world: World,
 		entity: EntityID,
 		transform: Transform,
 	) => {
 		for (const threeObject of world.componentsWithTag(entity, threeObjectTag)) {
-			let o3d: Three.Object3D =
-				threeObject instanceof Three.Object3D
-					? threeObject
-					: (<any>threeObject).object3d;
-			this.scene.add(o3d);
+			this.addToScene(threeObject, entity);
 		}
 	};
 
-	protected transformRemoved = (
+	protected onTransformRemoved = (
 		world: World,
 		entity: EntityID,
 		component: Transform,
 	) => {
 		for (const threeObject of world.componentsWithTag(entity, threeObjectTag)) {
-			let o3d: Three.Object3D =
-				threeObject instanceof Three.Object3D
-					? threeObject
-					: (<any>threeObject).object3d;
-			this.scene.remove(o3d);
+			this.removeFromScene(threeObject);
 		}
 	};
+
+	protected addToScene(threeObject: any, entity: EntityID){
+		let o3d: Three.Object3D =
+			threeObject instanceof Three.Object3D
+				? threeObject
+				: (<any>threeObject).object3d;
+
+		// throw in dev if Object3d is already on an entity, as that would almost certainly be a bug
+		if(o3d.userData.owningEntity) {
+			ELYSYA_DEV: {
+				throw new Error(`Object3D ${o3d.name} is already owned by entity ${o3d.userData.owningEntity}.`);
+			}
+			ELYSIA_PROD: {
+				// noop in prod
+				return
+			}
+		}
+
+		o3d.matrixWorldAutoUpdate = false;
+		o3d.userData.owningEntity = entity;
+		this.scene.add(o3d);
+	}
+
+	protected removeFromScene(threeObject: any) {
+		let o3d: Three.Object3D =
+			threeObject instanceof Three.Object3D
+				? threeObject
+				: (<any>threeObject).object3d;
+		o3d.userData.owningEntity = null;
+		this.scene.remove(o3d);
+	}
 }
 
 // ██████╗ ███████╗███╗   ██╗██████╗ ███████╗██████╗ ███████╗██████╗
