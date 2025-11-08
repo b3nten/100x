@@ -1,7 +1,7 @@
 {
 	"name": "@100x/engine",
 	"type": "module",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -16,12 +16,12 @@
 		"supports-color": "^5.4.0"
 	},
 	"devDependencies": {
-		"@types/three": "^0.171.0",
+		"@types/three": "^0.181.0",
 		"vite": "^6.0.7"
 	},
 	"peerDependencies": {
 		"jolt-physics": "^0.31.0",
-		"three": "^0.172.0"
+		"three": "^0.181.0"
 	},
 	"peerDependenciesMeta": {
 		"jolt-physics": {
