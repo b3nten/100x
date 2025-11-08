@@ -9,6 +9,7 @@ export function autobind<T>(
 	{ name, addInitializer }: ClassMethodDecoratorContext,
 ) {
 	addInitializer(function () {
+		// @ts-expect-error
 		this[name] = this[name].bind(this);
 	});
 }
