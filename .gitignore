@@ -3,6 +3,8 @@ dist
 .dist
 .build
 playground/dist
+docs/.vitepress/dist
+docs/.vitepress/cache
 
 # IDEs and editors
 .idea

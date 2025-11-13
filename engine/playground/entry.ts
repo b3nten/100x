@@ -10,11 +10,10 @@ import {
     FreeLookComponent,
     FreeLookControlSystem,
     InfiniteGridHelper
-} from "elysiatech/three/mod";
-import {ActorSystem, ActorComponent, World} from "elysiatech/ecs";
-import {Frameloop} from "elysiatech/lib";
-import {nonNullOrThrow} from "elysiatech/asserts.ts";
-import {PhysicalSky} from "elysiatech/three/physicalSky.ts";
+} from "@100x/engine/three";
+import {ActorSystem, ActorComponent, World} from "@100x/engine/ecs";
+import {Frameloop} from "@100x/engine/lib";
+import {nonNullOrThrow} from "@100x/engine/asserts";
 import {WebGLRenderer} from "three";
 
 const canvas = nonNullOrThrow(
@@ -36,7 +35,6 @@ world.createEntityWith(
     new Three.AmbientLight(0xffffff, .1),
     new InfiniteGridHelper(),
     new Transform(),
-    // new PhysicalSky(),
 );
 
 world.createEntityWith(

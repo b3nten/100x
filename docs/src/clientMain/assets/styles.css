@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-black text-white;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+}
+
+@layer utilities {
+  /*.pixel-border {
+    box-shadow:
+      0 -2px 0 0 currentColor,
+      2px 0 0 0 currentColor,
+      0 2px 0 0 currentColor,
+      -2px 0 0 0 currentColor;
+  }
+
+  .pixel-border-thick {
+    box-shadow:
+      0 -4px 0 0 currentColor,
+      4px 0 0 0 currentColor,
+      0 4px 0 0 currentColor,
+      -4px 0 0 0 currentColor;
+  }*/
+
+  .nes-shadow {
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .nes-shadow-white {
+    box-shadow: 4px 4px 0 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .retro-font {
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+  }
+}

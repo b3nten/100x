@@ -9,7 +9,7 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "paths": {
-      "elysiatech/*": ["../src/*"]
+      "@100x/engine/*": ["../src/*"]
     }
   }
 }

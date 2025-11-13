@@ -1,0 +1,20 @@
+{
+  "name": "docs",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "application dev",
+    "build": "application build"
+  },
+  "dependencies": {
+    "@100x/application": "^0.0.11",
+    "@100x/engine": "^0.0.3",
+    "@100x/router": "workspace:^",
+    "@tailwindcss/vite": "^4.1.17",
+    "hono": "^4.10.2",
+    "ogl": "^1.0.11",
+    "tailwindcss": "^4.1.17",
+    "typescript": "^5.9.3",
+    "unhead": "^2.0.19"
+  }
+}
