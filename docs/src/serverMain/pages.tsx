@@ -17,7 +17,7 @@ export function Home() {
 					<PixelButton href="/docs/intro" variant="home">
 						GET STARTED
 					</PixelButton>
-					<PixelButton href="https://github.com/bentonbainbridge/100x" variant="home">
+					<PixelButton href="https://github.com/b3nten/100x" variant="home">
 						VIEW ON GITHUB
 					</PixelButton>
 				</div>

@@ -20,6 +20,7 @@ export function DocsLayout(props: PropsWithChildren<{ currentPath?: string; cont
 	return (
 		<Layout>
 			<NavBar />
+			<scroll-progress />
 			<Sidebar currentPath={props.currentPath} />
 			<main class="ml-64 mt-[57px] p-8">
 				<div class="max-w-4xl">
