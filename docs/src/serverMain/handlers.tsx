@@ -1,6 +1,7 @@
 import { routeDefs } from "~/shared/routes";
-import { DocsLayout } from "./layouts";
+import { Docs } from "./pages";
 import { Home } from "./pages";
+import { getDocsFor } from "../../content/content";
 
 export const handlers = routeDefs.createHandlers({
 	root: () => ({
@@ -14,40 +15,15 @@ export const handlers = routeDefs.createHandlers({
 	}),
 	docs: {
 		intro: () => ({
-			view: (
-				<DocsLayout currentPath="/docs/intro">
-					<h1 class="retro-font text-3xl md:text-4xl text-white mb-6 pixel-border border-yellow-300">
-						INTRODUCTION
-					</h1>
-					<div class="retro-font text-sm text-gray-300 space-y-4">
-						<p>
-							Welcome to 100x, a collection of high-performance libraries for building interactive web applications.
-						</p>
-						<p>
-							Choose a package from the sidebar to get started.
-						</p>
-					</div>
-				</DocsLayout>
-			),
+			view: getDocsFor("intro").then(x => <Docs content={x} />),
 			meta: {
-				title: "Introduction",
+				title: "100x - Intro",
 				description: "Introduction to 100x",
 			}
 		}),
 		engine: {
 			root: () => ({
-				view: (
-					<DocsLayout currentPath="/docs/engine">
-						<h1 class="retro-font text-3xl md:text-4xl text-white mb-6 pixel-border border-yellow-300">
-							ENGINE
-						</h1>
-						<div class="retro-font text-sm text-gray-300 space-y-4">
-							<p>
-								Documentation for the 100x Engine package.
-							</p>
-						</div>
-					</DocsLayout>
-				),
+				view: getDocsFor("engine").then(x => <Docs content={x} />),
 				meta: {
 					title: "100x - Engine",
 					description: "Engine for 100x",
@@ -56,18 +32,7 @@ export const handlers = routeDefs.createHandlers({
 		},
 		framework: {
 			root: () => ({
-				view: (
-					<DocsLayout currentPath="/docs/framework">
-						<h1 class="retro-font text-3xl md:text-4xl text-white mb-6 pixel-border border-yellow-300">
-							FRAMEWORK
-						</h1>
-						<div class="retro-font text-sm text-gray-300 space-y-4">
-							<p>
-								Documentation for the 100x Framework package.
-							</p>
-						</div>
-					</DocsLayout>
-				),
+				view: getDocsFor("framework").then(x => <Docs content={x} />),
 				meta: {
 					title: "100x - Framework",
 					description: "Framework for 100x",
@@ -76,18 +41,7 @@ export const handlers = routeDefs.createHandlers({
 		},
 		router: {
 			root: () => ({
-				view: (
-					<DocsLayout currentPath="/docs/router">
-						<h1 class="retro-font text-3xl md:text-4xl text-white mb-6 pixel-border border-yellow-300">
-							ROUTER
-						</h1>
-						<div class="retro-font text-sm text-gray-300 space-y-4">
-							<p>
-								Documentation for the 100x Router package.
-							</p>
-						</div>
-					</DocsLayout>
-				),
+				view: getDocsFor("router").then(x => <Docs content={x} />),
 				meta: {
 					title: "100x - Router",
 					description: "Router for 100x",
@@ -96,18 +50,7 @@ export const handlers = routeDefs.createHandlers({
 		},
 		react: {
 			root: () => ({
-				view: (
-					<DocsLayout currentPath="/docs/react">
-						<h1 class="retro-font text-3xl md:text-4xl text-white mb-6 pixel-border border-yellow-300">
-							REACT
-						</h1>
-						<div class="retro-font text-sm text-gray-300 space-y-4">
-							<p>
-								Documentation for the 100x React package.
-							</p>
-						</div>
-					</DocsLayout>
-				),
+				view: getDocsFor("react").then(x => <Docs content={x} />),
 				meta: {
 					title: "100x - React",
 					description: "React for 100x",

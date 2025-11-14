@@ -12,9 +12,13 @@
     "@100x/router": "workspace:^",
     "@tailwindcss/vite": "^4.1.17",
     "hono": "^4.10.2",
+    "nes.css": "^2.3.0",
     "ogl": "^1.0.11",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3",
     "unhead": "^2.0.19"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19"
   }
 }

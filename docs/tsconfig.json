@@ -19,6 +19,7 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
+    "allowJs": true,
 
     "types": ["@100x/application/client"],
     "paths": {

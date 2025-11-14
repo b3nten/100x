@@ -5,6 +5,7 @@ import { renderToString } from "hono/jsx/dom/server";
 import { Router } from "@100x/router";
 import { routeDefs } from "~/shared/routes";
 import { handlers } from "./handlers";
+import { NotFound } from "./pages";
 
 const app = new Hono();
 const router = new Router(
@@ -44,6 +45,14 @@ app.get("*", async (c) => {
 			}
 		}
 	}
+
+	if(!view) {
+		view = NotFound();
+	}
+
+	view = await view;
+
+	console.log(view)
 
 	return c.html(
 		transformHtmlTemplate(

@@ -1,8 +1,10 @@
 import "./assets/styles.css"
-import "./components/floating-badge"
-import "./components/scroll-progress"
+import "nes.css/css/nes.min.css";
+import "./docsSidebar"
 
-if(location.pathname === "/") {
-	import("./webgl/fragments.js")
-		.then(mod => mod.fragments(document.getElementById("viewport")));
-}
+import { fragments } from "./webgl/fragments.js";
+
+fragments(document.getElementById("viewport") ?? (() => { throw Error("Viewport not found") })());
+
+// uncloak
+document.body.style.opacity = "1"
